@@ -39,7 +39,8 @@ def default_config() -> dict:
             "brightness_enabled": False, "brightness": 50,
         },
         "scripts": {"enabled": False, "targets": []},
-        "notify": {"enabled": False, "targets": [], "actions_enabled": True},
+        "notify": {"enabled": False, "targets": [], "actions_enabled": True,
+                   "prompt_delivery": False},
     }
 
 
@@ -121,6 +122,7 @@ def validate_config(raw: dict) -> dict:
     c["scripts"]["targets"] = _ids(c["scripts"]["targets"], "Scripts", "script.")
     c["notify"]["targets"] = _ids(c["notify"]["targets"], "App notifications", "mobile_app_")
     _bool(c["notify"]["actions_enabled"], "notify.actions_enabled")
+    _bool(c["notify"]["prompt_delivery"], "notify.prompt_delivery")
     for section in ("lights", "scripts", "notify"):
         if c[section]["enabled"] and not c[section]["targets"]:
             raise InvalidAlarm(f"Select a target for {section}")

@@ -1,8 +1,9 @@
 # Publish and install Daybreak Alarms through HACS
 
 This is a **Home Assistant integration**, installed through HACS as **Integration**.
-It is not a dashboard resource, HACS frontend plugin, or Home Assistant OS add-on.
-The sidebar and audio files install with the integration.
+It is not a separate HACS frontend plugin or Home Assistant OS add-on.
+The sidebar, optional dashboard card, and audio install with the integration.
+Only the optional dashboard card needs a JavaScript resource entry; see README.
 
 ## 1. Fill in your GitHub repository details
 
@@ -35,14 +36,14 @@ description, and set topics such as `home-assistant`, `hacs`, `custom-integratio
 and `alarm`. HACS does not support private repositories.
 
 Upload the **contents** of the extracted folder, not the ZIP and not its outer
-`daybreak-alarm-v0.1.1` folder. These paths must exist at the repository root:
+`daybreak-alarm-v0.1.2` folder. These paths must exist at the repository root:
 
 | Path | Purpose |
 | --- | --- |
 | `hacs.json` | HACS metadata and minimum HA version |
 | `README.md` | User documentation |
 | `custom_components/daybreak_alarm/manifest.json` | HA integration metadata |
-| `custom_components/daybreak_alarm/frontend/` | Sidebar panel and three sounds |
+| `custom_components/daybreak_alarm/frontend/` | Sidebar, dashboard card, and three sounds |
 | `.github/workflows/validate.yml` | Tests, hassfest, and HACS checks |
 
 GitHub Desktop is a convenient option on Windows. With Git CLI in an empty new
@@ -51,7 +52,7 @@ remote repository, you can instead use:
 ```sh
 git init
 git add .
-git commit -m "Prepare Daybreak Alarms 0.1.1 for HACS"
+git commit -m "Release Daybreak Alarms 0.1.2"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/daybreak-alarm.git
 git push -u origin main
@@ -63,9 +64,9 @@ validation. These hosted checks have not been run merely by creating this ZIP.
 The brands check is explicitly excluded because this is a custom repository;
 listing in HACS's default catalog is a separate submission process.
 
-## 3. Publish version 0.1.1 (recommended)
+## 3. Publish version 0.1.2 (recommended)
 
-In GitHub, choose **Releases → Draft a new release**, create tag `v0.1.1` on the
+In GitHub, choose **Releases → Draft a new release**, create tag `v0.1.2` on the
 validated commit, and publish it as a normal release. No release asset upload is
 required: HACS downloads `custom_components/daybreak_alarm` from repository source.
 Keep `zip_release` disabled. This source ZIP includes docs/tests and is not a
@@ -73,7 +74,8 @@ HACS `zip_release` component-only asset.
 
 Without a release, HACS can install the default branch. A tag alone is not a
 published GitHub Release. For future versions, update `manifest.json`, `const.py`,
-and `package.json` to matching versions, test, then publish a matching new release.
+and `package.json` to matching versions, plus `FRONTEND_VERSION` in `panel.js`
+and the versioned import in `card.js`. Test, then publish a matching release.
 
 ## 4. Install into Home Assistant
 
@@ -90,8 +92,23 @@ this review. Older versions have not been runtime-tested.
 7. Open **Settings → Devices & services → Add integration → Daybreak Alarms**.
 8. Complete setup, then open **Alarms** in the sidebar. Refresh the browser if needed.
 
-The sidebar is visible only to administrators. Do not add `panel_custom:` YAML,
-JavaScript resources, or a second frontend repository; setup registers the panel.
+The sidebar is visible only to administrators and registers automatically. Do
+not add `panel_custom:` YAML or a second frontend repository. For the optional
+dashboard card, register `/daybreak_alarm/static/card.js?v=0.1.2` as a JavaScript
+module, refresh, then add **Daybreak Alarms** in the dashboard card picker.
+
+## Update an existing GitHub/HACS repository to 0.1.2
+
+Replace the repository's source with the contents of this archive, preserving
+your real GitHub `documentation`, `issue_tracker`, and `codeowners` in the
+integration manifest. The attached template still has `YOUR_GITHUB_USERNAME`;
+run the setup helper with your existing repository identity if needed. Preserve
+your repository's other custom files and settings. Run validation, inspect CI,
+then publish the `v0.1.2` release. Do not upload only this ZIP as the repository.
+
+After HACS downloads the update, restart HA and refresh the browser/app frontend.
+Keep the integration entry and existing storage. Register the new optional card
+resource once, or update its version query if already registered.
 
 ## Updating an existing manual installation
 

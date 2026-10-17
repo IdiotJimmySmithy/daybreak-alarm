@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.2 — 2026-10-17
+
+- Add a bundled dashboard card with the shared alarm editor, enable/disable,
+  Skip next, Snooze, Dismiss, and visual card configuration.
+- Add an optional ringing popup, filtered by card alarm IDs, with token-protected
+  Snooze/Dismiss, hide-without-dismiss, and coordination across multiple cards.
+- Add visible Edit buttons and sidebar instructions for card resource setup.
+- Move alarm tests into settings; Save & test uses the saved draft and keeps
+  settings open with active controls and output errors.
+- Dispatch phone notifications alongside device outputs. Slow speaker/media
+  actions no longer delay notification submission.
+- Keep full-test notifications visible after the ten-second audio test.
+- Add a phone-only test with per-target acceptance/error feedback and delivery
+  troubleshooting. Tests do not imply a confirmed push receipt.
+- Add optional prompt delivery for Android, off by default.
+- Queue frontend refresh events during a request; ignore disconnected responses.
+  Save & test retains its own save response even if a refresh completes first.
+- Preserve HACS source layout, domain, storage key, and existing alarm settings.
+- Pass 119 Python and 50 JavaScript checks. Extend browser/real-HA CI checks;
+  those checks could not be executed in this revision's local environment.
+
 ## 0.1.1 — 2026-10-17
 
 - Prepare repository for HACS custom integration installation, with repository

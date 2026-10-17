@@ -44,13 +44,14 @@ def build(destination):
             assert sound.getnchannels() == 1 and sound.getsampwidth() == 2
             assert sound.getnframes() == sound.getframerate() * 6
     js = (COMPONENT / "frontend/panel.js").read_text()
+    subprocess.run(["node", "--check", str(COMPONENT / "frontend/card.js")], check=True)
     demo = (ROOT / "tools/preview_adapter.js").read_text().replace("__DEFAULTS__", json.dumps(models.default_config()))
     script = (js + "\n" + demo).replace("</script", "<\\/script")
     subprocess.run(["node", "--input-type=module", "--check"], input=script, text=True, check=True)
     preview = '''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Daybreak Alarms — interactive preview</title>
 <style>body{margin:0;background:#111215;color:#f6f4ef;font-family:system-ui,sans-serif}.preview-banner{height:42px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 12px;background:#362b20;color:#ffc078;font-size:11px}.preview-banner button{border:1px solid #ffc07866;border-radius:5px;padding:4px 8px;background:none;color:inherit;font:inherit;cursor:pointer}daybreak-alarm-panel{height:calc(100dvh - 42px)}@media(max-width:500px){.preview-banner{font-size:9px;gap:8px}}</style></head>
-<body><div class="preview-banner"><span>Interactive preview · no devices are controlled · changes stay in this tab</span><button id="preview-theme">Light / dark</button></div><daybreak-alarm-panel></daybreak-alarm-panel><script type="module">''' + script + "</script></body></html>\n"
+<body><style>[hidden]{display:none!important}#demo-dashboard{max-width:440px;margin:32px auto;padding:0 14px}</style><div class="preview-banner"><span>Preview · no devices are controlled</span><button id="preview-view">Dashboard view</button><button id="preview-theme">Light / dark</button></div><daybreak-alarm-panel></daybreak-alarm-panel><div id="demo-dashboard" hidden><daybreak-alarm-card></daybreak-alarm-card></div><script type="module">''' + script + "</script></body></html>\n"
     (ROOT / "preview.html").write_text(preview)
     destination = destination.resolve()
     destination.mkdir(parents=True, exist_ok=True)

@@ -134,7 +134,7 @@ class HomeAssistantPort:
 
     async def call(self, domain, service, data):
         if not self.hass.services.has_service(domain, service):
-            raise ValueError("Action is not available in Home Assistant")
+            raise ValueError(f"{domain}.{service} is not available. Refresh the alarm editor and select a currently registered target.")
         if entity_id := data.get("entity_id"):
             state = self.hass.states.get(entity_id)
             if state is None or state.state == "unavailable":

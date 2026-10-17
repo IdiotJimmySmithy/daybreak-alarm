@@ -78,7 +78,7 @@ async def main():
             hass.states.async_set('light.daybreak_test', 'off')
 
             async with ClientSession() as http:
-                for filename in ('panel.js', 'sounds/daybreak.wav', 'sounds/soft.wav', 'sounds/pulse.wav'):
+                for filename in ('panel.js', 'card.js', 'sounds/daybreak.wav', 'sounds/soft.wav', 'sounds/pulse.wav'):
                     async with http.get(f'{base}/daybreak_alarm/static/{filename}') as response:
                         assert response.status == 200, (filename, response.status)
                         content = await response.read()
@@ -106,6 +106,16 @@ async def main():
                     catalog = await command('daybreak_alarm/get')
                     assert catalog['success']
                     assert 'mobile_app_test' in [n['id'] for n in catalog['result']['catalog']['notifications']]
+                    before_test = port.engine.snapshot()['alarms']
+                    phone_test = await command('daybreak_alarm/test_notification', notify={
+                        'enabled': True, 'targets': ['mobile_app_test'], 'prompt_delivery': True})
+                    assert phone_test['success'], phone_test
+                    assert phone_test['result']['results'][0]['accepted']
+                    assert not phone_test['result']['delivery_confirmed']
+                    assert port.engine.snapshot()['alarms'] == before_test
+                    assert calls[-1][2]['data']['ttl'] == 0
+                    assert calls[-1][2]['data']['priority'] == 'high'
+                    calls.clear()
                     saved = await command('daybreak_alarm/save', config={'label': 'Runtime test',
                         'sound': {'enabled': True, 'targets': ['media_player.daybreak_test'], 'loop': False},
                         'lights': {'enabled': True, 'targets': ['light.daybreak_test']},
@@ -139,6 +149,7 @@ async def main():
                     assert play[2]['media_content_id'] == base+'/daybreak_alarm/static/sounds/daybreak.wav'
                     assert (await command('daybreak_alarm/action', alarm_id=alarm_id, action='dismiss'))['success']
                     assert any(c[:2] == ('media_player', 'media_stop') for c in calls)
+                    assert not any(c[2].get('message') == 'clear_notification' for c in calls)
                     print('PASS: real HA service dispatch, device-output calls, media URL, test/dismiss')
 
                     from custom_components.daybreak_alarm.models import utc
@@ -158,6 +169,9 @@ async def main():
                     hass.bus.async_fire('mobile_app_notification_action', {'action': f'DAYBREAK:dismiss:{alarm_id}:{old_token}'})
                     await hass.async_block_till_done()
                     assert port.engine.records[alarm_id]['runtime']['status'] == 'ringing'
+                    stale_popup = await command('daybreak_alarm/action', alarm_id=alarm_id, action='dismiss', token=old_token)
+                    assert stale_popup['success']
+                    assert port.engine.records[alarm_id]['runtime']['status'] == 'ringing'
                     assert (await command('daybreak_alarm/action', alarm_id=alarm_id, action='dismiss'))['success']
                     print('PASS: scheduled one-time alarm, auto-disable, notification snooze, stale action rejection')
 
@@ -166,6 +180,10 @@ async def main():
                     await ws.send_json({'type': 'auth', 'access_token': user_access})
                     assert (await ws.receive_json())['type'] == 'auth_ok'
                     await ws.send_json({'id': 1, 'type': 'daybreak_alarm/get'})
+                    denied = await ws.receive_json()
+                    assert not denied['success'] and denied['error']['code'] == 'unauthorized'
+                    await ws.send_json({'id': 2, 'type': 'daybreak_alarm/test_notification',
+                                        'notify': {'enabled': True, 'targets': ['mobile_app_test']}})
                     denied = await ws.receive_json()
                     assert not denied['success'] and denied['error']['code'] == 'unauthorized'
                 async with http.post(base+'/api/services/daybreak_alarm/test',

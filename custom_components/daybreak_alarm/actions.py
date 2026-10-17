@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from uuid import uuid4
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,9 +82,23 @@ class ActionRunner:
         return groups, errors
 
     async def start(self, record, current):
+        token = record["runtime"]["token"]
+        session = self.sessions[token] = {
+            "speakers": {}, "claims": set(), "notify": [],
+            "tag": f"daybreak_{record['id']}_{token}",
+            # A ten-second test must remain visible long enough to check a phone.
+            "clear_notifications": not record["runtime"].get("test_run", False),
+        }
+        # Neither slow media resolution nor a phone service may delay the other.
+        # TaskGroup also cancels and joins both lanes before engine cleanup.
+        async with asyncio.TaskGroup() as group:
+            devices = group.create_task(self._start_devices(record, current, session))
+            phones = group.create_task(self._start_notifications(record, current, session))
+        return devices.result() + phones.result()
+
+    async def _start_devices(self, record, current, session):
         c = record["config"]
         token = record["runtime"]["token"]
-        session = self.sessions[token] = {"speakers": {}, "claims": set(), "notify": [], "tag": f"daybreak_{record['id']}_{token}"}
         errors = []
         sound = c["sound"]
         if sound["enabled"]:
@@ -144,6 +159,13 @@ class ActionRunner:
                 if not current():
                     return errors
                 await self._call(errors, "script", "turn_on", {"entity_id": target})
+        if sound["enabled"] and sound["loop"] and any(v["played"] and (not v["repeat_changed"] or v.get("repeat_fallback")) for v in session["speakers"].values()) and current():
+            self.loops[token] = asyncio.create_task(self._loop(token, current, sound["media_id"].startswith("builtin:")))
+        return errors
+
+    async def _start_notifications(self, record, current, session):
+        c, token = record["config"], record["runtime"]["token"]
+        errors = []
         if c["notify"]["enabled"]:
             buttons = []
             if c["notify"]["actions_enabled"]:
@@ -156,11 +178,28 @@ class ActionRunner:
                 data = {"title": c["label"], "message": f"Your {c['time']} alarm is ringing.", "data": {
                     "tag": session["tag"], "url": "/daybreak-alarms", "clickAction": "/daybreak-alarms", "actions": buttons,
                 }}
+                if record["runtime"].get("test_run"):
+                    data["message"] = "Test alarm. Audio stops after 10 seconds; this notification stays until you clear it. Controls work only while the test is active."
+                if c["notify"].get("prompt_delivery"):
+                    data["data"].update(priority="high", ttl=0)
                 session["notify"].append(service)
                 await self._call(errors, "notify", service, data)
-        if sound["enabled"] and sound["loop"] and any(v["played"] and (not v["repeat_changed"] or v.get("repeat_fallback")) for v in session["speakers"].values()) and current():
-            self.loops[token] = asyncio.create_task(self._loop(token, current, sound["media_id"].startswith("builtin:")))
         return errors
+
+    async def test_notifications(self, config):
+        """Test only selected phone services; do not save or start an alarm."""
+        results = []
+        tag = f"daybreak_phone_test_{uuid4().hex}"
+        for service in config["notify"]["targets"]:
+            errors = []
+            data = {"title": "Daybreak · notification test",
+                    "message": "Your Home Assistant notification test arrived. No alarm or other device was started.",
+                    "data": {"tag": tag, "url": "/daybreak-alarms", "clickAction": "/daybreak-alarms"}}
+            if config["notify"].get("prompt_delivery"):
+                data["data"].update(priority="high", ttl=0)
+            ok = await self._call(errors, "notify", service, data)
+            results.append({"target": service, "accepted": ok, "error": "; ".join(errors)})
+        return {"results": results, "delivery_confirmed": False}
 
     async def _loop(self, token, current, builtin):
         try:
@@ -212,7 +251,7 @@ class ActionRunner:
                 await self._call(errors, "media_player", "repeat_set", {"entity_id": entity_id, "repeat": info["repeat"]})
             if info["volume_changed"] and record["config"]["sound"]["restore_volume"] and info["volume"] is not None:
                 await self._call(errors, "media_player", "volume_set", {"entity_id": entity_id, "volume_level": info["volume"]})
-        for service in session["notify"]:
+        for service in session["notify"] if session["clear_notifications"] else []:
             await self._call(errors, "notify", service, {"message": "clear_notification", "data": {"tag": session["tag"]}})
         for entity_id in session["claims"]:
             if self.owners.get(entity_id) == token:

@@ -1,5 +1,8 @@
-Python tests: final source
-==========================
+Daybreak Alarms v0.1.2 — local verification, 2026-10-17
+Python 3.12.14 / Node 24.19.0
+Browser and real-HA execution blocked by unavailable downloads; see VALIDATION.md.
+
+$ python3 -m unittest discover -s tests -v
 test_background_repeat_cancelled_on_stop (test_actions.ActionTests.test_background_repeat_cancelled_on_stop) ... ok
 test_cancelled_play_attempt_is_stopped (test_actions.ActionTests.test_cancelled_play_attempt_is_stopped) ... ok
 test_cyclic_group_does_not_recurse_forever (test_actions.ActionTests.test_cyclic_group_does_not_recurse_forever) ... ok
@@ -98,6 +101,19 @@ test_disabled_features_preserve_targets (test_models.ValidationTests.test_disabl
 test_invalid_values_rejected (test_models.ValidationTests.test_invalid_values_rejected) ... ok
 test_no_mutation_of_input (test_models.ValidationTests.test_no_mutation_of_input) ... ok
 test_sound_can_be_disabled_after_clearing_custom_media (test_models.ValidationTests.test_sound_can_be_disabled_after_clearing_custom_media) ... ok
+test_disabled_or_empty_or_non_phone_targets_rejected (test_notifications.NotificationApiTests.test_disabled_or_empty_or_non_phone_targets_rejected) ... ok
+test_non_admin_cannot_send_test_notification (test_notifications.NotificationApiTests.test_non_admin_cannot_send_test_notification) ... ok
+test_old_dashboard_popup_cannot_dismiss_new_ring (test_notifications.NotificationApiTests.test_old_dashboard_popup_cannot_dismiss_new_ring) ... ok
+test_startup_blocks_phone_test (test_notifications.NotificationApiTests.test_startup_blocks_phone_test) ... ok
+test_unsaved_phone_test_never_changes_alarm_storage (test_notifications.NotificationApiTests.test_unsaved_phone_test_never_changes_alarm_storage) ... ok
+test_cancel_joins_notification_lane_before_cleanup (test_notifications.NotificationTests.test_cancel_joins_notification_lane_before_cleanup) ... ok
+test_full_test_notification_survives_audio_cleanup (test_notifications.NotificationTests.test_full_test_notification_survives_audio_cleanup) ... ok
+test_phone_only_reports_each_target_and_no_delivery_claim (test_notifications.NotificationTests.test_phone_only_reports_each_target_and_no_delivery_claim) ... ok
+test_phone_sends_while_media_resolution_is_still_blocked (test_notifications.NotificationTests.test_phone_sends_while_media_resolution_is_still_blocked) ... ok
+test_prompt_delivery_can_be_disabled (test_notifications.NotificationTests.test_prompt_delivery_can_be_disabled) ... ok
+test_real_alarm_notification_still_clears_on_dismiss (test_notifications.NotificationTests.test_real_alarm_notification_still_clears_on_dismiss) ... ok
+test_saved_v011_alarms_load_with_notification_defaults (test_notifications.NotificationTests.test_saved_v011_alarms_load_with_notification_defaults) ... ok
+test_slow_phone_does_not_delay_audio (test_notifications.NotificationTests.test_slow_phone_does_not_delay_audio) ... ok
 test_concurrent_cleanup_does_not_restore_over_new_run (test_regressions.OutputRegressions.test_concurrent_cleanup_does_not_restore_over_new_run) ... ok
 test_media_resolution_timeout_still_sends_notification (test_regressions.OutputRegressions.test_media_resolution_timeout_still_sends_notification) ... ok
 test_scheduled_alarm_preempts_snoozed_test (test_regressions.SchedulerRegressions.test_scheduled_alarm_preempts_snoozed_test) ... ok
@@ -108,130 +124,93 @@ test_configuring_repository_produces_valid_metadata (test_repository.RepositoryT
 test_template_identity_cannot_pass_publish_validation (test_repository.RepositoryTests.test_template_identity_cannot_pass_publish_validation) ... ok
 
 ----------------------------------------------------------------------
-Ran 106 tests in 0.198s
+Ran 119 tests in 0.207s
 
 OK
 Configured example-user/daybreak-alarm; maintainer @example-user. No files were uploaded.
 Repository validation passed
 
+Exit: 0
 
-JavaScript tests: final source
-==============================
-✔ HTML metacharacters are escaped (1.5045ms)
-✔ one-time schedule label (0.216777ms)
-✔ weekday shortcut (0.191482ms)
-✔ weekend shortcut (0.1262ms)
-✔ every-day shortcut (0.153552ms)
-✔ individual repeat days (0.167506ms)
-✔ 12-hour midnight (1.209451ms)
-✔ 12-hour noon (0.198126ms)
-✔ 24-hour display (0.272107ms)
-✔ disabled alarms are excluded from next alarm (0.559296ms)
-✔ disabled one-time alarm can still be snoozed (0.40504ms)
-✔ earliest due alarm selected (0.215513ms)
-✔ countdown never negative (0.237368ms)
-✔ countdown handles day and minute (1.08402ms)
-✔ empty state has a create action (0.667544ms)
-✔ alarm labels cannot inject markup (18.365898ms)
-✔ runtime errors cannot inject markup (0.523408ms)
-✔ ringing alarm offers dismiss and optional snooze (0.488277ms)
-✔ skip button respects feature switch (0.478622ms)
-✔ offline state disables enable switch (0.495615ms)
-✔ editor includes every weekday (0.578342ms)
-✔ editor has independent toggles for every optional feature (0.262053ms)
-✔ disabled output fields are disabled (0.160162ms)
-✔ unsupported speakers remain visible with a reason (0.192432ms)
-✔ missing targets remain selectable for removal (0.296375ms)
-✔ script and light behavior is described (0.219378ms)
-✔ form updates one nested field (0.236605ms)
-✔ form cannot write prototype paths (0.286924ms)
-✔ form rejects unknown fields (0.103252ms)
-✔ panel uses a local bundle without remote imports (0.699018ms)
-✔ background refresh cannot race a save or action (0.328418ms)
-ℹ tests 31
+$ node --test tests/frontend.test.mjs
+✔ HTML metacharacters are escaped (1.39635ms)
+✔ one-time schedule label (0.211137ms)
+✔ weekday shortcut (0.120201ms)
+✔ weekend shortcut (0.328724ms)
+✔ every-day shortcut (0.959603ms)
+✔ individual repeat days (0.12685ms)
+✔ 12-hour midnight (0.8782ms)
+✔ 12-hour noon (0.138939ms)
+✔ 24-hour display (0.175845ms)
+✔ disabled alarms are excluded from next alarm (0.531158ms)
+✔ disabled one-time alarm can still be snoozed (0.241322ms)
+✔ earliest due alarm selected (0.218619ms)
+✔ countdown never negative (0.217087ms)
+✔ countdown handles day and minute (0.071467ms)
+✔ empty state has a create action (0.63903ms)
+✔ alarm labels cannot inject markup (14.303867ms)
+✔ runtime errors cannot inject markup (0.637769ms)
+✔ ringing alarm offers dismiss and optional snooze (0.338909ms)
+✔ skip button respects feature switch (0.289405ms)
+✔ offline state disables enable switch (0.40625ms)
+✔ editor includes every weekday (0.473933ms)
+✔ editor has independent toggles for every optional feature (0.250527ms)
+✔ disabled output fields are disabled (0.382465ms)
+✔ unsupported speakers remain visible with a reason (0.195484ms)
+✔ missing targets remain selectable for removal (0.205929ms)
+✔ script and light behavior is described (0.216716ms)
+✔ form updates one nested field (0.158989ms)
+✔ form cannot write prototype paths (0.308674ms)
+✔ form rejects unknown fields (0.123276ms)
+✔ panel uses a local bundle without remote imports (0.637338ms)
+✔ background refresh cannot race a save or action (1.35073ms)
+✔ test controls are confined to settings (0.845431ms)
+✔ visible Edit controls exist for idle and ringing alarms (1.228487ms)
+✔ phone-only test explains submission versus delivery (0.177827ms)
+✔ card configuration rejects invalid switch values and filters (0.225879ms)
+✔ card filter limits visible alarms (0.173451ms)
+✔ card active alarms sort before scheduled ones (0.11976ms)
+✔ card optional editing and add controls can be hidden (0.226651ms)
+✔ card labels and titles cannot inject HTML (0.2328ms)
+✔ card disconnected controls cannot send actions (0.293512ms)
+✔ popup respects snooze switch and escapes labels (0.174512ms)
+✔ dashboard popup forwards its ring token (0.244528ms)
+✔ phone test sends only notification draft and keeps unsaved edits (0.347052ms)
+✔ phone service errors are visible and HTML-safe (0.314593ms)
+✔ save and test always uses the newly saved alarm ID (0.449756ms)
+✔ change events during a fetch queue a fresh snapshot (12.804232ms)
+✔ a response from a disconnected card is ignored (0.207372ms)
+✔ popup-off, card preview, hidden view and ID filters suppress the dialog (0.585961ms)
+✔ multiple dashboard cards share one popup and release it on stop (0.27904ms)
+✔ hiding a popup keeps ringing and a new ring may pop up again (0.251108ms)
+ℹ tests 50
 ℹ suites 0
-ℹ pass 31
+ℹ pass 50
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 145.517086
+ℹ duration_ms 145.09918
 
+Exit: 0
 
-Real Chromium preview smoke
-===========================
-Browser smoke checks passed: desktop, mobile, editor, weekdays, toggles, persistence in preview, and theme.
+$ python3 -m compileall -q custom_components tests/ha_runtime_smoke.py
 
+Exit: 0
 
-Real Home Assistant 2026.10.2 smoke; simulated adapter discovery and devices
-============================================================================
-WARNING:homeassistant.loader:We found a custom integration daybreak_alarm which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
-WARNING:aiohttp_fast_zlib:zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
-ERROR:homeassistant.components.camera.img_util:Error loading libturbojpeg; Camera snapshot performance will be sub-optimal
-Traceback (most recent call last):
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/camera/img_util.py", line 91, in __init__
-    TurboJPEGSingleton.__instance = TurboJPEG()
-                                    ~~~~~~~~~^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/turbojpeg.py", line 301, in __init__
-    self.__find_turbojpeg() if lib_path is None else lib_path)
-    ~~~~~~~~~~~~~~~~~~~~~^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/turbojpeg.py", line 996, in __find_turbojpeg
-    raise RuntimeError(
-    ...<2 lines>...
-        'e.g. jpeg = TurboJPEG(lib_path)')
-RuntimeError: Unable to locate turbojpeg library automatically. You may specify the turbojpeg library path manually.
-e.g. jpeg = TurboJPEG(lib_path)
-ERROR:homeassistant.components.analytics:Error setting up entry Analytics for analytics
-Traceback (most recent call last):
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/config_entries.py", line 985, in __async_setup_with_context
-    result = await component.async_setup_entry(hass, self)  # type: ignore[func-returns-value,assignment]
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/analytics/__init__.py", line 89, in async_setup_entry
-    analytics = Analytics(hass, snapshots_url)
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/analytics/analytics.py", line 249, in __init__
-    self._session = async_get_clientsession(hass)
-                    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 231, in async_get_clientsession
-    session = _async_create_clientsession(
-        hass,
-    ...<3 lines>...
-        ssl_cipher=ssl_cipher,
-    )
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 294, in _async_create_clientsession
-    connector=_async_get_connector(hass, verify_ssl, family, ssl_cipher),
-              ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 482, in _async_get_connector
-    resolver=_async_get_or_create_resolver(hass),
-             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/singleton.py", line 54, in wrapped
-    hass.data[data_key] = func(hass)
-                          ~~~~^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 499, in _async_get_or_create_resolver
-    resolver = _async_make_resolver(hass)
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 510, in _async_make_resolver
-    return HassAsyncDNSResolver(async_zeroconf=zeroconf.async_get_async_zeroconf(hass))
-                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/zeroconf/__init__.py", line 85, in async_get_async_zeroconf
-    return _async_get_instance(hass)
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/zeroconf/__init__.py", line 92, in _async_get_instance
-    zeroconf = HaZeroconf(**_async_get_zc_args(hass))
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_core.py", line 190, in __init__
-    listen_socket, respond_sockets = create_sockets(interfaces, unicast, ip_version, apple_p2p=apple_p2p)
-                                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_utils/net.py", line 505, in create_sockets
-    add_multicast_member(cast(socket.socket, listen_socket), interface)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_utils/net.py", line 334, in add_multicast_member
-    listen_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, _value)
-    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OSError: [Errno 19] No such device
-ERROR:homeassistant.components.websocket_api.http.connection:[139961838610496] Error handling message: value must be one of ['disable', 'dismiss', 'enable', 'skip', 'snooze', 'test'] at 'action'. Got 'invalid' (invalid_format) Test admin from 127.0.0.1 (Python/3.14 aiohttp/3.14.5)
-WARNING:homeassistant.components.http.ban:Login attempt or request with invalid authentication from localhost (127.0.0.1). Requested URL: '/api/services/daybreak_alarm/test'. (Python/3.14 aiohttp/3.14.5)
-PASS: real config flow, setup, startup readiness, duplicate prevention
-PASS: real HTTP static panel and all bundled audio files
-PASS: authenticated WebSocket CRUD, real schema rejection, stale revision protection
-PASS: real HA service dispatch, device-output calls, media URL, test/dismiss
-PASS: scheduled one-time alarm, auto-disable, notification snooze, stale action rejection
-PASS: non-admin WebSocket and service denial
-PASS: real storage, unload/reload without duplicate static routes, explicit removal
-Real Home Assistant 2026.10.2 smoke test PASSED.
+$ node --check custom_components/daybreak_alarm/frontend/panel.js
+
+Exit: 0
+
+$ node --check custom_components/daybreak_alarm/frontend/card.js
+
+Exit: 0
+
+$ node --check tests/browser-smoke.mjs
+
+Exit: 0
+
+$ python3 tools/validate_repository.py --allow-template
+Repository validation passed (template identity allowed; configure before publishing)
+
+Exit: 0

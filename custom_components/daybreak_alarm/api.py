@@ -8,7 +8,7 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError, Unauthorized
 
 from .const import DOMAIN
-from .models import Conflict, InvalidAlarm
+from .models import Conflict, InvalidAlarm, validate_config
 
 _LOGGER = logging.getLogger(__name__)
 COMMANDS = ("enable", "disable", "snooze", "dismiss", "skip", "test")
@@ -51,8 +51,8 @@ async def ws_get(hass, connection, msg):
 @websocket_api.async_response
 async def ws_save(hass, connection, msg):
     async def operation(port):
-        await port.engine.save_alarm(msg["config"], msg.get("alarm_id"), msg.get("revision"))
-        return port.engine.snapshot()
+        saved = await port.engine.save_alarm(msg["config"], msg.get("alarm_id"), msg.get("revision"))
+        return {**port.engine.snapshot(), "saved_alarm_id": saved["id"]}
     await _dispatch(hass, connection, msg, operation)
 
 
@@ -66,18 +66,29 @@ async def ws_delete(hass, connection, msg):
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/action", vol.Required("alarm_id"): str,
-                                 vol.Required("action"): vol.In(COMMANDS)})
+                                 vol.Required("action"): vol.In(COMMANDS), vol.Optional("token"): str})
 @websocket_api.async_response
 async def ws_action(hass, connection, msg):
     async def operation(port):
-        await port.engine.action(msg["alarm_id"], msg["action"])
+        await port.engine.action(msg["alarm_id"], msg["action"], token=msg.get("token"))
         return port.engine.snapshot()
+    await _dispatch(hass, connection, msg, operation)
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/test_notification", vol.Required("notify"): dict})
+@websocket_api.async_response
+async def ws_test_notification(hass, connection, msg):
+    async def operation(port):
+        config = validate_config({"notify": msg["notify"]})
+        if not config["notify"]["enabled"]:
+            raise InvalidAlarm("Enable app notifications and select a phone before testing")
+        return await port.runner.test_notifications(config)
     await _dispatch(hass, connection, msg, operation)
 
 
 @callback
 def async_register(hass):
-    for handler in (ws_get, ws_save, ws_delete, ws_action):
+    for handler in (ws_get, ws_save, ws_delete, ws_action, ws_test_notification):
         websocket_api.async_register_command(hass, handler)
 
     async def handle_service(call):

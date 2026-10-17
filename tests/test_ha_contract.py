@@ -145,7 +145,7 @@ class ContractTests(unittest.IsolatedAsyncioTestCase):
         await bootstrap.async_unload_entry(self.hass,self.entry)
 
     async def test_setup_registers_panel_static_path_and_services(self):
-        self.assertEqual(len(self.hass.ws),4)
+        self.assertEqual(len(self.hass.ws),5)
         self.assertEqual(set(self.hass.services.registered),set(api.COMMANDS))
         panel=self.hass.panels["daybreak-alarms"]
         self.assertTrue(panel["require_admin"])
