@@ -1,0 +1,237 @@
+Python tests: final source
+==========================
+test_background_repeat_cancelled_on_stop (test_actions.ActionTests.test_background_repeat_cancelled_on_stop) ... ok
+test_cancelled_play_attempt_is_stopped (test_actions.ActionTests.test_cancelled_play_attempt_is_stopped) ... ok
+test_cyclic_group_does_not_recurse_forever (test_actions.ActionTests.test_cyclic_group_does_not_recurse_forever) ... ok
+test_disabled_outputs_make_no_calls (test_actions.ActionTests.test_disabled_outputs_make_no_calls) ... ok
+test_disabled_snooze_omits_notification_button (test_actions.ActionTests.test_disabled_snooze_omits_notification_button) ... ok
+test_each_output_independently_enabled (test_actions.ActionTests.test_each_output_independently_enabled) ... ok
+test_helper_group_expands_members (test_actions.ActionTests.test_helper_group_expands_members) ... ok
+test_loop_off_overrides_inherited_native_repeat (test_actions.ActionTests.test_loop_off_overrides_inherited_native_repeat) ... ok
+test_native_repeat_restored (test_actions.ActionTests.test_native_repeat_restored) ... ok
+test_notification_actions_can_be_disabled (test_actions.ActionTests.test_notification_actions_can_be_disabled) ... ok
+test_notification_tags_differ_between_runs (test_actions.ActionTests.test_notification_tags_differ_between_runs) ... ok
+test_notifications_have_run_specific_action_tokens (test_actions.ActionTests.test_notifications_have_run_specific_action_tokens) ... ok
+test_overlapping_alarm_cannot_steal_or_stop_speaker (test_actions.ActionTests.test_overlapping_alarm_cannot_steal_or_stop_speaker) ... ok
+test_playback_failure_does_not_block_lights (test_actions.ActionTests.test_playback_failure_does_not_block_lights) ... ok
+test_playback_without_stop_or_pause_rejected (test_actions.ActionTests.test_playback_without_stop_or_pause_rejected) ... ok
+test_restore_volume_can_be_disabled (test_actions.ActionTests.test_restore_volume_can_be_disabled) ... ok
+test_room_and_explicit_target_deduplicated (test_actions.ActionTests.test_room_and_explicit_target_deduplicated) ... ok
+test_room_excludes_tv_and_other_rooms (test_actions.ActionTests.test_room_excludes_tv_and_other_rooms) ... ok
+test_single_speaker_target_is_exact (test_actions.ActionTests.test_single_speaker_target_is_exact) ... ok
+test_stale_run_performs_no_actions (test_actions.ActionTests.test_stale_run_performs_no_actions) ... ok
+test_stop_does_not_undo_lights_or_scripts (test_actions.ActionTests.test_stop_does_not_undo_lights_or_scripts) ... ok
+test_stop_uses_pause_when_stop_unsupported (test_actions.ActionTests.test_stop_uses_pause_when_stop_unsupported) ... ok
+test_unavailable_speaker_does_not_block_notification (test_actions.ActionTests.test_unavailable_speaker_does_not_block_notification) ... ok
+test_unselected_native_group_member_is_blocked (test_actions.ActionTests.test_unselected_native_group_member_is_blocked) ... ok
+test_unsupported_controls_are_not_called (test_actions.ActionTests.test_unsupported_controls_are_not_called) ... ok
+test_volume_set_and_restored (test_actions.ActionTests.test_volume_set_and_restored) ... ok
+test_whole_native_group_plays_only_once (test_actions.ActionTests.test_whole_native_group_plays_only_once) ... ok
+test_auto_dismiss (test_engine.EngineTests.test_auto_dismiss) ... ok
+test_auto_dismiss_can_be_disabled (test_engine.EngineTests.test_auto_dismiss_can_be_disabled) ... ok
+test_close_cancels_timer (test_engine.EngineTests.test_close_cancels_timer) ... ok
+test_closed_engine_rejects_edits (test_engine.EngineTests.test_closed_engine_rejects_edits) ... ok
+test_concurrent_edits_conflict (test_engine.EngineTests.test_concurrent_edits_conflict) ... ok
+test_corrupt_storage_is_not_overwritten (test_engine.EngineTests.test_corrupt_storage_is_not_overwritten) ... ok
+test_creation_persisted_and_armed (test_engine.EngineTests.test_creation_persisted_and_armed) ... ok
+test_delete_active_stops_and_removes (test_engine.EngineTests.test_delete_active_stops_and_removes) ... ok
+test_disable_cancels_active_one_time_alarm (test_engine.EngineTests.test_disable_cancels_active_one_time_alarm) ... ok
+test_disable_cancels_pending_output_job (test_engine.EngineTests.test_disable_cancels_pending_output_job) ... ok
+test_disk_failure_does_not_change_memory (test_engine.EngineTests.test_disk_failure_does_not_change_memory) ... ok
+test_disk_failure_prevents_firing (test_engine.EngineTests.test_disk_failure_prevents_firing) ... ok
+test_dismiss_cancels_snooze (test_engine.EngineTests.test_dismiss_cancels_snooze) ... ok
+test_grace_period_fires_once (test_engine.EngineTests.test_grace_period_fires_once) ... ok
+test_notification_token_is_single_use (test_engine.EngineTests.test_notification_token_is_single_use) ... ok
+test_one_time_fires_once_and_disables (test_engine.EngineTests.test_one_time_fires_once_and_disables) ... ok
+test_overdue_alarm_marked_missed (test_engine.EngineTests.test_overdue_alarm_marked_missed) ... ok
+test_persistence_precedes_device_actions (test_engine.EngineTests.test_persistence_precedes_device_actions) ... ok
+test_repeat_advances_to_next_selected_day (test_engine.EngineTests.test_repeat_advances_to_next_selected_day) ... ok
+test_restart_does_not_replay_ringing (test_engine.EngineTests.test_restart_does_not_replay_ringing) ... ok
+test_restart_preserves_one_time_date (test_engine.EngineTests.test_restart_preserves_one_time_date) ... ok
+test_restart_restores_snooze (test_engine.EngineTests.test_restart_restores_snooze) ... ok
+test_save_during_ring_stops_old_output (test_engine.EngineTests.test_save_during_ring_stops_old_output) ... ok
+test_save_label_preserves_one_time_date (test_engine.EngineTests.test_save_label_preserves_one_time_date) ... ok
+test_simultaneous_alarms_both_fire (test_engine.EngineTests.test_simultaneous_alarms_both_fire) ... ok
+test_skip_can_be_disabled (test_engine.EngineTests.test_skip_can_be_disabled) ... ok
+test_skip_one_time_disables (test_engine.EngineTests.test_skip_one_time_disables) ... ok
+test_skip_repeat (test_engine.EngineTests.test_skip_repeat) ... ok
+test_snapshot_cannot_mutate_engine (test_engine.EngineTests.test_snapshot_cannot_mutate_engine) ... ok
+test_snooze_disabled_rejected (test_engine.EngineTests.test_snooze_disabled_rejected) ... ok
+test_snooze_one_time_alarm_even_after_auto_disable (test_engine.EngineTests.test_snooze_one_time_alarm_even_after_auto_disable) ... ok
+test_stale_notification_does_nothing (test_engine.EngineTests.test_stale_notification_does_nothing) ... ok
+test_test_does_not_change_schedule (test_engine.EngineTests.test_test_does_not_change_schedule) ... ok
+test_timezone_change_recalculates_wall_time (test_engine.EngineTests.test_timezone_change_recalculates_wall_time) ... ok
+test_boot_defers_actions_and_disallows_early_edits (test_ha_contract.ContractTests.test_boot_defers_actions_and_disallows_early_edits) ... ok
+test_builtin_audio_is_an_absolute_reachable_url (test_ha_contract.ContractTests.test_builtin_audio_is_an_absolute_reachable_url) ... ok
+test_catalog_inherits_device_area_and_lists_only_mobile_notify (test_ha_contract.ContractTests.test_catalog_inherits_device_area_and_lists_only_mobile_notify) ... ok
+test_config_flow_form_and_creation (test_ha_contract.ContractTests.test_config_flow_form_and_creation) ... ok
+test_corrupt_storage_aborts_setup_without_overwrite (test_ha_contract.ContractTests.test_corrupt_storage_aborts_setup_without_overwrite) ... ok
+test_custom_media_identifier_preserved (test_ha_contract.ContractTests.test_custom_media_identifier_preserved) ... ok
+test_disabled_notification_controls_ignore_button (test_ha_contract.ContractTests.test_disabled_notification_controls_ignore_button) ... ok
+test_media_source_is_resolved (test_ha_contract.ContractTests.test_media_source_is_resolved) ... ok
+test_native_service_denies_non_admin (test_ha_contract.ContractTests.test_native_service_denies_non_admin) ... ok
+test_notification_action_token_forwarded (test_ha_contract.ContractTests.test_notification_action_token_forwarded) ... ok
+test_setup_registers_panel_static_path_and_services (test_ha_contract.ContractTests.test_setup_registers_panel_static_path_and_services) ... ok
+test_system_automation_service_allowed (test_ha_contract.ContractTests.test_system_automation_service_allowed) ... ok
+test_unknown_builtin_sound_rejected (test_ha_contract.ContractTests.test_unknown_builtin_sound_rejected) ... ok
+test_unload_then_reload_does_not_register_static_twice (test_ha_contract.ContractTests.test_unload_then_reload_does_not_register_static_twice) ... ok
+test_websocket_create_get_action_delete_roundtrip (test_ha_contract.ContractTests.test_websocket_create_get_action_delete_roundtrip) ... ok
+test_websocket_denies_non_admin (test_ha_contract.ContractTests.test_websocket_denies_non_admin) ... ok
+test_websocket_stale_edit_conflict_is_returned (test_ha_contract.ContractTests.test_websocket_stale_edit_conflict_is_returned) ... ok
+test_websocket_validation_error_is_returned (test_ha_contract.ContractTests.test_websocket_validation_error_is_returned) ... ok
+test_all_weekdays_over_a_year (test_models.CalendarTests.test_all_weekdays_over_a_year) ... ok
+test_disabled_has_no_next (test_models.CalendarTests.test_disabled_has_no_next) ... ok
+test_fall_back_does_not_ring_twice (test_models.CalendarTests.test_fall_back_does_not_ring_twice) ... ok
+test_fall_back_uses_first_occurrence (test_models.CalendarTests.test_fall_back_uses_first_occurrence) ... ok
+test_fractional_timezone (test_models.CalendarTests.test_fractional_timezone) ... ok
+test_midnight (test_models.CalendarTests.test_midnight) ... ok
+test_naive_timestamp_rejected (test_models.CalendarTests.test_naive_timestamp_rejected) ... ok
+test_one_time_ignores_days (test_models.CalendarTests.test_one_time_ignores_days) ... ok
+test_past_time_schedules_tomorrow (test_models.CalendarTests.test_past_time_schedules_tomorrow) ... ok
+test_selected_weekdays (test_models.CalendarTests.test_selected_weekdays) ... ok
+test_spring_gap_selected_sunday_skips_week (test_models.CalendarTests.test_spring_gap_selected_sunday_skips_week) ... ok
+test_spring_nonexistent_wall_time_skipped (test_models.CalendarTests.test_spring_nonexistent_wall_time_skipped) ... ok
+test_all_optional_outputs_can_be_disabled (test_models.ValidationTests.test_all_optional_outputs_can_be_disabled) ... ok
+test_days_are_sorted_and_deduplicated (test_models.ValidationTests.test_days_are_sorted_and_deduplicated) ... ok
+test_defaults_are_independent (test_models.ValidationTests.test_defaults_are_independent) ... ok
+test_disabled_features_preserve_targets (test_models.ValidationTests.test_disabled_features_preserve_targets) ... ok
+test_invalid_values_rejected (test_models.ValidationTests.test_invalid_values_rejected) ... ok
+test_no_mutation_of_input (test_models.ValidationTests.test_no_mutation_of_input) ... ok
+test_sound_can_be_disabled_after_clearing_custom_media (test_models.ValidationTests.test_sound_can_be_disabled_after_clearing_custom_media) ... ok
+test_concurrent_cleanup_does_not_restore_over_new_run (test_regressions.OutputRegressions.test_concurrent_cleanup_does_not_restore_over_new_run) ... ok
+test_media_resolution_timeout_still_sends_notification (test_regressions.OutputRegressions.test_media_resolution_timeout_still_sends_notification) ... ok
+test_scheduled_alarm_preempts_snoozed_test (test_regressions.SchedulerRegressions.test_scheduled_alarm_preempts_snoozed_test) ... ok
+test_scheduled_alarm_preempts_test (test_regressions.SchedulerRegressions.test_scheduled_alarm_preempts_test) ... ok
+test_tick_queued_behind_close_does_not_change_storage (test_regressions.SchedulerRegressions.test_tick_queued_behind_close_does_not_change_storage) ... ok
+test_bad_repository_url_is_rejected (test_repository.RepositoryTests.test_bad_repository_url_is_rejected) ... ok
+test_configuring_repository_produces_valid_metadata (test_repository.RepositoryTests.test_configuring_repository_produces_valid_metadata) ... ok
+test_template_identity_cannot_pass_publish_validation (test_repository.RepositoryTests.test_template_identity_cannot_pass_publish_validation) ... ok
+
+----------------------------------------------------------------------
+Ran 106 tests in 0.198s
+
+OK
+Configured example-user/daybreak-alarm; maintainer @example-user. No files were uploaded.
+Repository validation passed
+
+
+JavaScript tests: final source
+==============================
+✔ HTML metacharacters are escaped (1.5045ms)
+✔ one-time schedule label (0.216777ms)
+✔ weekday shortcut (0.191482ms)
+✔ weekend shortcut (0.1262ms)
+✔ every-day shortcut (0.153552ms)
+✔ individual repeat days (0.167506ms)
+✔ 12-hour midnight (1.209451ms)
+✔ 12-hour noon (0.198126ms)
+✔ 24-hour display (0.272107ms)
+✔ disabled alarms are excluded from next alarm (0.559296ms)
+✔ disabled one-time alarm can still be snoozed (0.40504ms)
+✔ earliest due alarm selected (0.215513ms)
+✔ countdown never negative (0.237368ms)
+✔ countdown handles day and minute (1.08402ms)
+✔ empty state has a create action (0.667544ms)
+✔ alarm labels cannot inject markup (18.365898ms)
+✔ runtime errors cannot inject markup (0.523408ms)
+✔ ringing alarm offers dismiss and optional snooze (0.488277ms)
+✔ skip button respects feature switch (0.478622ms)
+✔ offline state disables enable switch (0.495615ms)
+✔ editor includes every weekday (0.578342ms)
+✔ editor has independent toggles for every optional feature (0.262053ms)
+✔ disabled output fields are disabled (0.160162ms)
+✔ unsupported speakers remain visible with a reason (0.192432ms)
+✔ missing targets remain selectable for removal (0.296375ms)
+✔ script and light behavior is described (0.219378ms)
+✔ form updates one nested field (0.236605ms)
+✔ form cannot write prototype paths (0.286924ms)
+✔ form rejects unknown fields (0.103252ms)
+✔ panel uses a local bundle without remote imports (0.699018ms)
+✔ background refresh cannot race a save or action (0.328418ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.517086
+
+
+Real Chromium preview smoke
+===========================
+Browser smoke checks passed: desktop, mobile, editor, weekdays, toggles, persistence in preview, and theme.
+
+
+Real Home Assistant 2026.10.2 smoke; simulated adapter discovery and devices
+============================================================================
+WARNING:homeassistant.loader:We found a custom integration daybreak_alarm which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+WARNING:aiohttp_fast_zlib:zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
+ERROR:homeassistant.components.camera.img_util:Error loading libturbojpeg; Camera snapshot performance will be sub-optimal
+Traceback (most recent call last):
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/camera/img_util.py", line 91, in __init__
+    TurboJPEGSingleton.__instance = TurboJPEG()
+                                    ~~~~~~~~~^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/turbojpeg.py", line 301, in __init__
+    self.__find_turbojpeg() if lib_path is None else lib_path)
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/turbojpeg.py", line 996, in __find_turbojpeg
+    raise RuntimeError(
+    ...<2 lines>...
+        'e.g. jpeg = TurboJPEG(lib_path)')
+RuntimeError: Unable to locate turbojpeg library automatically. You may specify the turbojpeg library path manually.
+e.g. jpeg = TurboJPEG(lib_path)
+ERROR:homeassistant.components.analytics:Error setting up entry Analytics for analytics
+Traceback (most recent call last):
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/config_entries.py", line 985, in __async_setup_with_context
+    result = await component.async_setup_entry(hass, self)  # type: ignore[func-returns-value,assignment]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/analytics/__init__.py", line 89, in async_setup_entry
+    analytics = Analytics(hass, snapshots_url)
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/analytics/analytics.py", line 249, in __init__
+    self._session = async_get_clientsession(hass)
+                    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 231, in async_get_clientsession
+    session = _async_create_clientsession(
+        hass,
+    ...<3 lines>...
+        ssl_cipher=ssl_cipher,
+    )
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 294, in _async_create_clientsession
+    connector=_async_get_connector(hass, verify_ssl, family, ssl_cipher),
+              ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 482, in _async_get_connector
+    resolver=_async_get_or_create_resolver(hass),
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/singleton.py", line 54, in wrapped
+    hass.data[data_key] = func(hass)
+                          ~~~~^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 499, in _async_get_or_create_resolver
+    resolver = _async_make_resolver(hass)
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/helpers/aiohttp_client.py", line 510, in _async_make_resolver
+    return HassAsyncDNSResolver(async_zeroconf=zeroconf.async_get_async_zeroconf(hass))
+                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/zeroconf/__init__.py", line 85, in async_get_async_zeroconf
+    return _async_get_instance(hass)
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/homeassistant/components/zeroconf/__init__.py", line 92, in _async_get_instance
+    zeroconf = HaZeroconf(**_async_get_zc_args(hass))
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_core.py", line 190, in __init__
+    listen_socket, respond_sockets = create_sockets(interfaces, unicast, ip_version, apple_p2p=apple_p2p)
+                                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_utils/net.py", line 505, in create_sockets
+    add_multicast_member(cast(socket.socket, listen_socket), interface)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/8f4bf1a35c31/ha-venv/lib/python3.14/site-packages/zeroconf/_utils/net.py", line 334, in add_multicast_member
+    listen_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, _value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 19] No such device
+ERROR:homeassistant.components.websocket_api.http.connection:[139961838610496] Error handling message: value must be one of ['disable', 'dismiss', 'enable', 'skip', 'snooze', 'test'] at 'action'. Got 'invalid' (invalid_format) Test admin from 127.0.0.1 (Python/3.14 aiohttp/3.14.5)
+WARNING:homeassistant.components.http.ban:Login attempt or request with invalid authentication from localhost (127.0.0.1). Requested URL: '/api/services/daybreak_alarm/test'. (Python/3.14 aiohttp/3.14.5)
+PASS: real config flow, setup, startup readiness, duplicate prevention
+PASS: real HTTP static panel and all bundled audio files
+PASS: authenticated WebSocket CRUD, real schema rejection, stale revision protection
+PASS: real HA service dispatch, device-output calls, media URL, test/dismiss
+PASS: scheduled one-time alarm, auto-disable, notification snooze, stale action rejection
+PASS: non-admin WebSocket and service denial
+PASS: real storage, unload/reload without duplicate static routes, explicit removal
+Real Home Assistant 2026.10.2 smoke test PASSED.

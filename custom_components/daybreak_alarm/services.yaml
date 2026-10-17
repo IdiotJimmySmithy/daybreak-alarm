@@ -1,0 +1,54 @@
+enable:
+  name: Enable alarm
+  description: Enable an alarm and schedule its next occurrence.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:
+disable:
+  name: Disable alarm
+  description: Disable an alarm and stop its current sound or snooze.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:
+snooze:
+  name: Snooze alarm
+  description: Snooze a ringing alarm using its configured duration.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:
+dismiss:
+  name: Dismiss alarm
+  description: Stop a ringing or snoozed alarm without disabling future repeats.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:
+skip:
+  name: Skip next alarm
+  description: Skip the next occurrence; a one-time alarm is disabled.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:
+test:
+  name: Test alarm
+  description: Run all selected outputs now and stop alarm audio after 10 seconds. Lights and scripts also run.
+  fields:
+    alarm_id:
+      name: Alarm ID
+      required: true
+      selector:
+        text:

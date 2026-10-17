@@ -1,0 +1,12 @@
+{
+  "title": "Daybreak Alarms",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Daybreak Alarms",
+        "description": "Add a shared Alarms sidebar page. Create alarms, choose repeat days, and optionally control speakers, lights, scripts, and Home Assistant app notifications. This first version is available to Home Assistant administrators."
+      }
+    },
+    "abort": {"already_configured": "Daybreak Alarms is already configured."}
+  }
+}
