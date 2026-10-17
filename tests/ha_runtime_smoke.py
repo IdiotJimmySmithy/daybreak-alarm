@@ -23,7 +23,9 @@ from homeassistant.auth.const import GROUP_ID_ADMIN, GROUP_ID_USER
 from homeassistant.bootstrap import async_from_config_dict
 from homeassistant.config_entries import ConfigEntryState, SOURCE_USER
 from homeassistant.components.media_player import MediaPlayerEntityFeature
+from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,6 +59,9 @@ async def main():
             assert entry.state is ConfigEntryState.LOADED
             port = hass.data['daybreak_alarm']
             assert port.ready
+            version = json.loads((ROOT/'custom_components/daybreak_alarm/manifest.json').read_text())['version']
+            card_url = f'/daybreak_alarm/static/card.js?v={version}'
+            assert card_url in hass.data[DATA_EXTRA_MODULE_URL].urls
             duplicate = await hass.config_entries.flow.async_init('daybreak_alarm', context={'source': SOURCE_USER})
             assert duplicate['type'] == 'abort'
             print('PASS: real config flow, setup, startup readiness, duplicate prevention')
@@ -69,6 +74,8 @@ async def main():
             user_access = hass.auth.async_create_access_token(user_refresh)
             calls = []
             async def output(call):
+                if call.domain == 'notify':
+                    assert len(call.data.get('data', {}).get('tag', '').encode()) <= 64
                 calls.append((call.domain, call.service, dict(call.data)))
             for domain, name in [('media_player', 'play_media'), ('media_player', 'media_stop'),
                                  ('light', 'turn_on'), ('notify', 'mobile_app_test')]:
@@ -123,13 +130,28 @@ async def main():
                     assert saved['success'], saved
                     alarm = saved['result']['alarms'][0]
                     alarm_id = alarm['id']
+                    await hass.async_block_till_done()
+                    registry = er.async_get(hass)
+                    def alarm_entities(identifier):
+                        return {e.unique_id.split(':', 1)[1]: e.entity_id
+                                for e in er.async_entries_for_config_entry(registry, entry.entry_id)
+                                if e.unique_id.startswith(identifier+':')}
+                    entities = alarm_entities(alarm_id)
+                    assert set(entities) == {'enabled', 'snooze', 'dismiss', 'status', 'next_alarm'}
+                    assert hass.states.get(entities['enabled']).state == 'on'
+                    assert hass.states.get(entities['status']).state == 'idle'
+                    assert hass.states.get(entities['snooze']).state == 'unavailable'
                     edited = await command('daybreak_alarm/save', alarm_id=alarm_id,
                                            revision=alarm['revision'], config=alarm['config'])
                     assert edited['success']
                     extra = await command('daybreak_alarm/save', config={'label': 'Delete me'})
                     extra_id = next(a['id'] for a in extra['result']['alarms'] if a['config']['label'] == 'Delete me')
+                    await hass.async_block_till_done()
+                    assert len(alarm_entities(extra_id)) == 5
                     deleted = await command('daybreak_alarm/delete', alarm_id=extra_id)
                     assert deleted['success'] and all(a['id'] != extra_id for a in deleted['result']['alarms'])
+                    await hass.async_block_till_done()
+                    assert not alarm_entities(extra_id)
                     stale = await command('daybreak_alarm/save', alarm_id=alarm_id, revision=0, config={})
                     assert not stale['success'] and stale['error']['code'] == 'conflict'
                     invalid = await command('daybreak_alarm/action', alarm_id=alarm_id, action='invalid')
@@ -145,9 +167,16 @@ async def main():
                     assert any(c[:2] == ('media_player', 'play_media') for c in calls)
                     assert any(c[:2] == ('light', 'turn_on') for c in calls)
                     assert any(c[:2] == ('notify', 'mobile_app_test') for c in calls)
+                    notice = next(c[2] for c in calls if c[0] == 'notify')
+                    assert len(notice['data']['tag'].encode()) == 41
                     play = next(c for c in calls if c[:2] == ('media_player', 'play_media'))
                     assert play[2]['media_content_id'] == base+'/daybreak_alarm/static/sounds/daybreak.wav'
-                    assert (await command('daybreak_alarm/action', alarm_id=alarm_id, action='dismiss'))['success']
+                    await hass.async_block_till_done()
+                    assert hass.states.get(entities['status']).state == 'ringing'
+                    await hass.services.async_call('button', 'press', {'entity_id': entities['snooze']}, blocking=True)
+                    await hass.async_block_till_done()
+                    assert hass.states.get(entities['status']).state == 'snoozed'
+                    await hass.services.async_call('button', 'press', {'entity_id': entities['dismiss']}, blocking=True)
                     assert any(c[:2] == ('media_player', 'media_stop') for c in calls)
                     assert not any(c[2].get('message') == 'clear_notification' for c in calls)
                     print('PASS: real HA service dispatch, device-output calls, media URL, test/dismiss')
@@ -189,14 +218,29 @@ async def main():
                 async with http.post(base+'/api/services/daybreak_alarm/test',
                         headers={'Authorization': f'Bearer {user_access}'}, json={'alarm_id': alarm_id}) as response:
                     assert response.status in (401, 403)
+                async with http.post(base+'/api/services/switch/turn_on',
+                        headers={'Authorization': f'Bearer {user_access}'},
+                        json={'entity_id': entities['enabled']}) as response:
+                    assert response.status in (401, 403), await response.text()
+                for action, expected in [('turn_on', 'on'), ('turn_off', 'off')]:
+                    async with http.post(base+'/api/services/switch/'+action,
+                            headers={'Authorization': f'Bearer {access}'},
+                            json={'entity_id': entities['enabled']}) as response:
+                        assert response.status == 200, await response.text()
+                    await hass.async_block_till_done()
+                    assert hass.states.get(entities['enabled']).state == expected
                 print('PASS: non-admin WebSocket and service denial')
 
             stored = Path(directory)/'.storage/daybreak_alarm.alarms'
             assert stored.exists()
             await hass.config_entries.async_unload(entry.entry_id)
             assert 'daybreak_alarm' not in hass.data
+            assert card_url not in hass.data[DATA_EXTRA_MODULE_URL].urls
             await hass.config_entries.async_setup(entry.entry_id)
+            await hass.async_block_till_done()
             assert entry.state is ConfigEntryState.LOADED
+            assert alarm_entities(alarm_id) == entities
+            assert card_url in hass.data[DATA_EXTRA_MODULE_URL].urls
             restored = hass.data['daybreak_alarm'].engine.records[alarm_id]
             assert restored['config']['label'] == 'Runtime test'
             assert restored['runtime']['status'] == 'idle'

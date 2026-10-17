@@ -3,7 +3,7 @@
 This is a **Home Assistant integration**, installed through HACS as **Integration**.
 It is not a separate HACS frontend plugin or Home Assistant OS add-on.
 The sidebar, optional dashboard card, and audio install with the integration.
-Only the optional dashboard card needs a JavaScript resource entry; see README.
+The dashboard card loads automatically; no manual resource entry is needed.
 
 ## 1. Fill in your GitHub repository details
 
@@ -36,7 +36,7 @@ description, and set topics such as `home-assistant`, `hacs`, `custom-integratio
 and `alarm`. HACS does not support private repositories.
 
 Upload the **contents** of the extracted folder, not the ZIP and not its outer
-`daybreak-alarm-v0.1.2` folder. These paths must exist at the repository root:
+`daybreak-alarm-v0.1.3` folder. These paths must exist at the repository root:
 
 | Path | Purpose |
 | --- | --- |
@@ -52,7 +52,7 @@ remote repository, you can instead use:
 ```sh
 git init
 git add .
-git commit -m "Release Daybreak Alarms 0.1.2"
+git commit -m "Release Daybreak Alarms 0.1.3"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/daybreak-alarm.git
 git push -u origin main
@@ -64,9 +64,9 @@ validation. These hosted checks have not been run merely by creating this ZIP.
 The brands check is explicitly excluded because this is a custom repository;
 listing in HACS's default catalog is a separate submission process.
 
-## 3. Publish version 0.1.2 (recommended)
+## 3. Publish version 0.1.3 (recommended)
 
-In GitHub, choose **Releases → Draft a new release**, create tag `v0.1.2` on the
+In GitHub, choose **Releases → Draft a new release**, create tag `v0.1.3` on the
 validated commit, and publish it as a normal release. No release asset upload is
 required: HACS downloads `custom_components/daybreak_alarm` from repository source.
 Keep `zip_release` disabled. This source ZIP includes docs/tests and is not a
@@ -93,22 +93,25 @@ this review. Older versions have not been runtime-tested.
 8. Complete setup, then open **Alarms** in the sidebar. Refresh the browser if needed.
 
 The sidebar is visible only to administrators and registers automatically. Do
-not add `panel_custom:` YAML or a second frontend repository. For the optional
-dashboard card, register `/daybreak_alarm/static/card.js?v=0.1.2` as a JavaScript
-module, refresh, then add **Daybreak Alarms** in the dashboard card picker.
+not add `panel_custom:` YAML or a second frontend repository. Fully reload the
+browser/app, then add **Daybreak Alarms** in the dashboard card picker. The card's
+module loads automatically. Native controls appear under **Settings → Devices &
+services → Daybreak Alarms → entities** for every saved alarm.
 
-## Update an existing GitHub/HACS repository to 0.1.2
+## Update an existing GitHub/HACS repository to 0.1.3
 
 Replace the repository's source with the contents of this archive, preserving
 your real GitHub `documentation`, `issue_tracker`, and `codeowners` in the
 integration manifest. The attached template still has `YOUR_GITHUB_USERNAME`;
 run the setup helper with your existing repository identity if needed. Preserve
 your repository's other custom files and settings. Run validation, inspect CI,
-then publish the `v0.1.2` release. Do not upload only this ZIP as the repository.
+then publish the `v0.1.3` release. Do not upload only this ZIP as the repository.
 
 After HACS downloads the update, restart HA and refresh the browser/app frontend.
-Keep the integration entry and existing storage. Register the new optional card
-resource once, or update its version query if already registered.
+Keep the integration entry and existing storage. Remove any old manually added
+Daybreak resource under **Settings → Dashboards → Resources**, or from YAML-managed
+resources. The integration now loads the correct module automatically. Existing
+alarms gain five native entities without recreating the alarms.
 
 ## Updating an existing manual installation
 

@@ -2,7 +2,7 @@
 
 DOMAIN = "daybreak_alarm"
 NAME = "Daybreak Alarms"
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 PANEL_PATH = "daybreak-alarms"
 STATIC_PATH = "/daybreak_alarm/static"
 STORAGE_KEY = "daybreak_alarm.alarms"

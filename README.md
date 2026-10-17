@@ -1,12 +1,12 @@
-# Daybreak Alarms · v0.1.2
+# Daybreak Alarms · v0.1.3
 
 A Home Assistant custom integration with an **Alarms** sidebar, a dashboard card, and an Apple-inspired alarm editor. The Python backend schedules the alarms; a browser or phone does not need to remain open.
 
 Prepared for installation through a **HACS custom GitHub repository**, with regression fixes and automated checks. Start with [HACS_SETUP.md](HACS_SETUP.md) to configure your repository identity, publish the source, and install. The minimum declared version is Home Assistant 2026.10.0.
 
-**169 automated tests pass** for this update. Browser and real Home Assistant checks are included in CI but could not run in the current environment because their dependencies could not be downloaded. Phone delivery and physical devices have not been tested here. See [VALIDATION.md](VALIDATION.md). This package has not been published to GitHub by this update.
+**185 automated tests pass** for this update. Browser and real Home Assistant checks are included in CI but could not run in the current environment because their dependencies could not be downloaded. Phone delivery and physical devices have not been tested here. See [VALIDATION.md](VALIDATION.md). This package has not been published to GitHub by this update.
 
-New in 0.1.2: a dashboard card with an optional ringing popup, visible **Edit** buttons, tests inside alarm settings, and phone-only notification diagnostics. Existing saved alarms are retained.
+New in 0.1.3: shorter phone-notification tags for full tests and scheduled alarms, native alarm-control entities, and automatic dashboard card loading. Existing saved alarms gain entities automatically. The optional ringing popup, Edit buttons, and phone-only diagnostics remain available.
 
 ## Install through HACS (recommended)
 
@@ -18,7 +18,7 @@ After publishing the repository as described in [HACS_SETUP.md](HACS_SETUP.md):
 4. Settings → Devices & services → Add integration → **Daybreak Alarms**.
 5. Open **Alarms** in the sidebar as an administrator.
 
-HACS installs the backend, sidebar, card, and sounds together. The sidebar needs no resource setup. To use the optional dashboard card, register its bundled JavaScript resource once as described below. No OS add-on or separate HACS frontend repository is needed.
+HACS installs the backend, sidebar, card, and sounds together. The sidebar and card load automatically when the integration is configured. Add the card to whichever dashboard you want; no manual JavaScript resource or separate HACS frontend repository is needed.
 
 ## Install on Home Assistant OS
 
@@ -28,17 +28,17 @@ HACS installs the backend, sidebar, card, and sounds together. The sidebar needs
 4. In **Settings → Devices & services → Add integration**, search for **Daybreak Alarms** and finish the one-step setup.
 5. Open **Alarms** in the sidebar. Refresh the browser if the item does not immediately appear.
 
-The sidebar registers automatically. The optional dashboard card needs one JavaScript resource entry. You do not need Node, Python tooling, or npm on Home Assistant OS. This is a **custom integration**, not an OS app/add-on. The same component can be installed manually or through your HACS custom repository.
+The sidebar and dashboard card register automatically. You do not need Node, Python tooling, or npm on Home Assistant OS. This is a **custom integration**, not an OS app/add-on. The same component can be installed manually or through your HACS custom repository.
 
-The first version is **administrator-only**, including its sidebar and WebSocket controls. It provides one shared collection for HA administrators. This keeps scheduled device control within the administrators’ existing authority. User-specific collections and non-admin delegation are not implemented.
+Alarm editing and control are **administrator-only**, including the sidebar, card, WebSocket, services, and native entity actions. System automations can also use the controls. Native entity state visibility follows normal Home Assistant permissions; it is not a private per-user alarm collection. User-specific collections and non-admin control delegation are not implemented.
 
 ## Dashboard card and ringing popup
 
 Open **Alarms → Add a dashboard card** for the setup instructions in Home Assistant.
 
-1. In your HA profile, enable **Advanced mode**. Open **Settings → Dashboards → menu → Resources**.
-2. Add `/daybreak_alarm/static/card.js?v=0.1.2` with type **JavaScript module**. If a Daybreak resource already exists, update it instead of adding a duplicate.
-3. Reload the browser/app frontend. Edit your dashboard → **Add card → Daybreak Alarms**. The visual editor lets you toggle the popup, Add/Edit buttons, and 24-hour display, or filter by alarm IDs.
+1. Update the integration and restart Home Assistant. Keep the existing Daybreak integration entry.
+2. If you manually registered a Daybreak resource in an older version, remove that old entry under **Settings → Dashboards → menu → Resources** (Advanced mode may be required), or from `lovelace.resources` if managed in YAML. This avoids an old cached module loading first.
+3. Fully reload the browser/app frontend. Edit your dashboard → **Add card → Daybreak Alarms**. The visual editor lets you toggle the popup, Add/Edit buttons, and 24-hour display, or filter by alarm IDs.
 
 For a Manual card:
 
@@ -48,7 +48,7 @@ title: Alarms
 show_popup: true
 ```
 
-For YAML-managed resources, register the same URL under `lovelace.resources` with `type: module`. The integration must be configured for the static URL to exist.
+The integration loads its bundled module automatically for storage- and YAML-managed dashboards. It must be configured under Devices & services, not merely downloaded in HACS. Adding a dashboard card remains your choice; the integration does not edit your dashboards.
 
 The card supports creating/editing alarms, enable/disable, Skip next, Snooze, and Dismiss. Clicking **Edit** opens the same settings as the sidebar, including all tests. Snooze and Skip respect each alarm’s switches.
 
@@ -65,6 +65,34 @@ Popups require the card’s dashboard to be open and visible. They do not appear
 | `alarm_ids` | `[]` | Empty means all alarms; otherwise show and pop up only these IDs |
 
 Copy an alarm ID from **Edit → Automation ID**. Filters affect this card’s display, not backend scheduling or authorization.
+
+## Native entities and controls
+
+Open **Settings → Devices & services → Daybreak Alarms → entities**, or open its
+**Daybreak Alarms** device. You can also filter the global Entities list by the
+Daybreak Alarms integration. Each saved alarm provides five entities, including
+alarms created before this update:
+
+| Entity | Purpose |
+| --- | --- |
+| Enabled switch | Enable/disable the alarm; disabling stops an active alarm |
+| Snooze button | Snooze a ringing alarm when Snooze is enabled in its settings |
+| Dismiss button | Stop a ringing alarm or cancel a snoozed occurrence |
+| Status sensor | `idle`, `ringing`, `snoozed`, or `disabled` |
+| Next alarm sensor | Timestamp of the next scheduled or snoozed occurrence, or unknown if none |
+
+Names contain the alarm label. IDs are created by Home Assistant and stay stable
+when you edit that label; duplicate labels have distinct underlying IDs. The
+`alarm_id` attribute identifies the corresponding alarm. Snooze and Dismiss show
+as unavailable when their action does not apply. A one-time alarm's switch turns
+off when it fires, but its Snooze and Dismiss controls still work while active.
+
+Add these entities to standard HA cards or automations if preferred. Individual
+entities can be disabled in HA entity settings without deleting the saved alarm.
+Use the Enabled switch or the alarm editor to disable scheduling. Deleting an
+alarm removes its entities; unloading/reloading preserves entity identities and
+user customizations. There are no per-alarm entities until at least one alarm
+has been saved.
 
 ## Create an alarm
 
@@ -123,7 +151,9 @@ Install/connect the Home Assistant companion app and grant it notification permi
 
 In **Edit → App notifications**, select the phone and choose **Send phone-only test**. This uses the current phone selection without saving an alarm or starting speakers, lights, or scripts. Results identify each exact notification action and report acceptance or its error. Acceptance confirms Home Assistant processed the action, **not that the phone received a push**. Phone-only tests stay visible until cleared and have no alarm-action buttons.
 
-Notifications now dispatch alongside device outputs, so a slow speaker/media lookup cannot hold up a phone alert. If no notification arrives after an accepted test, verify notification permission, Focus / Do Not Disturb, the exact selected device, and the companion app’s notification settings. Run the same `notify.mobile_app_*` action in **Developer tools → Actions** to separate a companion delivery problem from an alarm setup problem. Renamed/removed targets are shown as unavailable in the picker; replace them and retest. No specific cause for an undelivered physical-phone alert can be confirmed from this source package alone.
+Version 0.1.3 fixes an oversized notification tag: full alarm tests and scheduled alarms previously produced 74-byte tags, while the phone-only test used a shorter tag. Alarm tags now use the unique ring token alone (41 bytes), within Apple's 64-byte collapse-ID limit. Snooze creates a new tag; dismissal clears the matching tag. This bug was reproduced with an APNs-limit simulation, but delivery to your physical phone still needs verification.
+
+Notifications dispatch alongside device outputs, so a slow speaker/media lookup cannot hold up a phone alert. If no notification arrives after an accepted test, verify notification permission, Focus / Do Not Disturb, the exact selected device, and the companion app’s notification settings. Run the same `notify.mobile_app_*` action in **Developer tools → Actions** to separate a companion delivery problem from an alarm setup problem. Renamed/removed targets are shown as unavailable in the picker; replace them and retest.
 
 These are HA app notifications, not native alarms in Apple’s Clock or Android’s Clock. This release does not request critical-alert or Do Not Disturb overrides. Notification delivery depends on the companion app, permissions, connectivity, and platform behavior.
 
@@ -183,16 +213,21 @@ python3 tools/build_release.py
 - Missing sidebar: ensure you are a HA administrator, the integration was added, and the browser refreshed. Review HA logs for `daybreak_alarm` if setup failed.
 - No speakers or phones: first make them work through their normal HA integrations; this component does not pair hardware.
 - No sound: open the alarm’s output-issue details; check player capabilities, media format, selected group members, and the reachable media URL.
-- Card not found: ensure its resource URL is registered as a JavaScript module, the integration is loaded, and the browser has been refreshed. The type is `custom:daybreak-alarm-card`.
+- Card not found: confirm Daybreak Alarms is configured and loaded under Devices & services. Restart HA after updating, remove any old manually added Daybreak resource, and fully reload the browser/app. Search Add card for **Daybreak Alarms**, or use `custom:daybreak-alarm-card` in a Manual card.
+- Entities not found: save at least one alarm, then open **Settings → Devices & services → Daybreak Alarms → entities**. Check that version 0.1.3 is installed and HA restarted. Snooze/Dismiss being unavailable while idle is expected.
 - No phone alert: use **Edit → App notifications → Send phone-only test**, check its exact per-target result, and follow the Phone app section above.
 - Bad saved storage: setup fails rather than silently discarding alarms. Restore the HA backup or inspect the error before retrying.
-- Update via HACS: download the new release and restart HA; keep the existing integration entry. For manual updates, replace only `/config/custom_components/daybreak_alarm` with the new version and restart HA. The stored alarms remain in `.storage`. Update the dashboard resource’s `?v=` value to the installed version and refresh the browser/app frontend.
+- Update via HACS: download the new release and restart HA; keep the existing integration entry. For manual updates, replace only `/config/custom_components/daybreak_alarm` with the new version and restart HA. The stored alarms remain in `.storage`. Remove any old manually registered Daybreak card resource and fully refresh the browser/app frontend; the card now loads automatically.
 - Remove: delete the Daybreak Alarms integration through HA’s Devices & services UI, which removes its stored alarms; then remove the component folder if desired. Restore a Home Assistant backup to recover removed alarms.
 
 ## Implementation references
 
 Checked against the official guidance available on October 17, 2026:
 
+- [APNs request headers and collapse-ID limit](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html)
+- [Home Assistant frontend module registration](https://github.com/home-assistant/core/blob/dev/homeassistant/components/frontend/__init__.py)
+- [Awaiting entity platform setup](https://developers.home-assistant.io/blog/2024/06/12/async_forward_entry_setups/)
+- [Entity lifecycle and naming](https://developers.home-assistant.io/docs/core/entity/)
 - [Custom panels](https://developers.home-assistant.io/docs/frontend/custom-ui/creating-custom-panels/)
 - [Async static-path registration](https://developers.home-assistant.io/blog/2024/06/18/async_register_static_paths/)
 - [WebSocket API extensions](https://developers.home-assistant.io/docs/frontend/extending/websocket-api/)

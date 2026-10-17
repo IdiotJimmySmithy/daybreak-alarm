@@ -8,6 +8,73 @@ from support import FakeGateway, FakePort, actions_module, engine_module, models
 from test_ha_contract import FakeHass, Connection, api, bootstrap
 
 
+class NotificationTagTests(unittest.IsolatedAsyncioTestCase):
+    """Use engine-generated UUIDs and enforce APNs' 64-byte collapse-ID limit."""
+
+    async def asyncSetUp(self):
+        self.gateway = FakeGateway()
+        original = self.gateway.call
+        async def limited_call(domain, service, data):
+            if domain == "notify" and len(data.get("data", {}).get("tag", "").encode()) > 64:
+                raise ValueError("apns-collapse-id exceeds 64 bytes")
+            await original(domain, service, data)
+        self.gateway.call = limited_call
+        self.runner = actions_module.ActionRunner(self.gateway)
+        self.port = FakePort()
+        self.port.start_outputs = self.runner.start
+        self.port.stop_outputs = self.runner.stop
+        self.engine = engine_module.AlarmEngine(self.port)
+        await self.engine.initialize()
+        self.alarm = await self.engine.save_alarm({
+            "sound": {"enabled": True, "targets": ["media_player.bedroom"], "loop": False},
+            "notify": {"enabled": True, "targets": ["mobile_app_phone"]},
+        })
+
+    async def asyncTearDown(self):
+        await self.engine.close()
+
+    async def ring(self, test=False):
+        if test:
+            await self.engine.action(self.alarm["id"], "test")
+        else:
+            self.port.clock = models.utc(self.alarm["runtime"]["next_at"])
+            await self.engine.tick()
+        await asyncio.gather(*list(self.engine.jobs.values()))
+        record = self.engine.records[self.alarm["id"]]
+        self.assertEqual(record["runtime"]["errors"], [])
+        notice = next(c[2] for c in self.gateway.calls if c[0] == "notify")
+        self.assertEqual(len(record["id"]), 32)
+        self.assertEqual(len(record["runtime"]["token"]), 32)
+        self.assertEqual(len(notice["data"]["tag"].encode()), 41)
+        self.assertIn(f'DAYBREAK:dismiss:{record["id"]}:{record["runtime"]["token"]}',
+                      [a["action"] for a in notice["data"]["actions"]])
+        return notice
+
+    async def test_scheduled_alarm_accepts_full_uuid_tag_and_clears_same_tag(self):
+        notice = await self.ring()
+        await self.engine.action(self.alarm["id"], "dismiss")
+        clear = next(c[2] for c in self.gateway.calls if c[2].get("message") == "clear_notification")
+        self.assertEqual(notice["data"]["tag"], clear["data"]["tag"])
+
+    async def test_full_alarm_test_accepts_full_uuid_tag_and_keeps_notice(self):
+        await self.ring(test=True)
+        await self.engine.action(self.alarm["id"], "dismiss")
+        self.assertFalse(any(c[2].get("message") == "clear_notification" for c in self.gateway.calls))
+
+    async def test_snooze_uses_new_tag_without_changing_button_routing(self):
+        first = await self.ring()
+        await self.engine.action(self.alarm["id"], "snooze")
+        self.gateway.calls.clear()
+        self.port.clock = models.utc(self.engine.records[self.alarm["id"]]["runtime"]["snooze_until"])
+        await self.engine.tick()
+        await asyncio.gather(*list(self.engine.jobs.values()))
+        notices = [c[2] for c in self.gateway.calls if c[0] == "notify"]
+        self.assertEqual(len(notices), 1)
+        self.assertNotEqual(first["data"]["tag"], notices[0]["data"]["tag"])
+        self.assertEqual(len(notices[0]["data"]["tag"].encode()), 41)
+        self.assertEqual(self.engine.records[self.alarm["id"]]["runtime"]["errors"], [])
+
+
 class NotificationTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.gateway = FakeGateway()

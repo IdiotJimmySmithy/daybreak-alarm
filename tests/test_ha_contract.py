@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, UTC
-from enum import IntFlag
+from enum import IntFlag, StrEnum
 import importlib
 import importlib.util
 from pathlib import Path
@@ -29,6 +29,22 @@ class Features(IntFlag):
 
 class HAError(Exception): pass
 class Unauthorized(HAError): pass
+
+
+class Platform(StrEnum):
+    SWITCH = "switch"
+    BUTTON = "button"
+    SENSOR = "sensor"
+
+
+class Entity:
+    _context = None
+    async def async_added_to_hass(self): pass
+    def async_on_remove(self, callback):
+        if not hasattr(self, "remove_callbacks"): self.remove_callbacks = []
+        self.remove_callbacks.append(callback)
+    def async_write_ha_state(self):
+        self.state_writes = getattr(self, "state_writes", 0) + 1
 
 
 class Store:
@@ -65,11 +81,16 @@ module("homeassistant.components")
 module("homeassistant.helpers")
 module("homeassistant.util")
 module("homeassistant.util.dt",utcnow=lambda:datetime(2026,10,16,10,59,tzinfo=UTC))
-module("homeassistant.const",EVENT_HOMEASSISTANT_STARTED="homeassistant_started",EVENT_HOMEASSISTANT_STOP="homeassistant_stop")
+module("homeassistant.const",EVENT_HOMEASSISTANT_STARTED="homeassistant_started",EVENT_HOMEASSISTANT_STOP="homeassistant_stop",Platform=Platform)
 module("homeassistant.core",callback=lambda f:f)
 module("homeassistant.config_entries",ConfigFlow=ConfigFlow)
 module("homeassistant.exceptions",HomeAssistantError=HAError,Unauthorized=Unauthorized)
 module("homeassistant.components.media_player",MediaPlayerEntityFeature=Features)
+module("homeassistant.helpers.entity",Entity=Entity)
+module("homeassistant.components.switch",SwitchEntity=type("SwitchEntity", (Entity,), {}))
+module("homeassistant.components.button",ButtonEntity=type("ButtonEntity", (Entity,), {}))
+module("homeassistant.components.sensor",SensorEntity=type("SensorEntity", (Entity,), {}),
+       SensorDeviceClass=NS(ENUM="enum", TIMESTAMP="timestamp"))
 module("homeassistant.components.http",StaticPathConfig=StaticPathConfig)
 module("homeassistant.components.media_source",async_resolve_media=AsyncMock(return_value=NS(url="https://audio.test/a.mp3",mime_type="audio/mpeg")))
 module("homeassistant.helpers.storage",Store=Store)
@@ -82,7 +103,9 @@ module("homeassistant.components.websocket_api",websocket_command=lambda schema:
 
 async def register_panel(hass,**kwargs):hass.panels[kwargs["frontend_url_path"]]=kwargs
 module("homeassistant.components.panel_custom",async_register_panel=register_panel)
-module("homeassistant.components.frontend",async_remove_panel=lambda hass,path:hass.panels.pop(path,None))
+module("homeassistant.components.frontend",async_remove_panel=lambda hass,path:hass.panels.pop(path,None),
+       add_extra_js_url=lambda hass,url:hass.extra_modules.add(url),
+       remove_extra_js_url=lambda hass,url:hass.extra_modules.remove(url))
 
 ha=importlib.import_module(f"{PACKAGE}.ha")
 api=importlib.import_module(f"{PACKAGE}.api")
@@ -113,6 +136,9 @@ class FakeServices:
 class FakeHass:
     def __init__(self,running=True):
         self.data={};self.storage={};self.timers=[];self.panels={};self.ws=[]
+        self.extra_modules=set()
+        self.config_entries=NS(async_forward_entry_setups=AsyncMock(),
+                               async_unload_platforms=AsyncMock(return_value=True))
         self.config=NS(time_zone="America/New_York");self.is_running=running
         self.http=NS(async_register_static_paths=AsyncMock());self.bus=FakeBus();self.services=FakeServices()
         self.auth=NS(async_get_user=AsyncMock(return_value=NS(is_admin=False)))
@@ -153,6 +179,32 @@ class ContractTests(unittest.IsolatedAsyncioTestCase):
         static=self.hass.http.async_register_static_paths.call_args.args[0][0]
         self.assertEqual(static.url_path,"/daybreak_alarm/static")
         self.assertTrue(Path(static.path,"panel.js").exists())
+        self.assertEqual(self.hass.extra_modules, {bootstrap.CARD_URL})
+        self.hass.config_entries.async_forward_entry_setups.assert_awaited_once_with(self.entry, bootstrap.PLATFORMS)
+
+    async def test_failed_platform_unload_preserves_scheduler_and_card(self):
+        self.hass.config_entries.async_unload_platforms.return_value = False
+        self.assertFalse(await bootstrap.async_unload_entry(self.hass, self.entry))
+        self.assertIs(self.hass.data["daybreak_alarm"], self.port)
+        self.assertTrue(self.port.ready)
+        self.assertIn(bootstrap.CARD_URL, self.hass.extra_modules)
+        self.hass.config_entries.async_unload_platforms.return_value = True
+
+    async def test_failed_platform_setup_cleans_up_and_can_retry(self):
+        hass = FakeHass()
+        entry = NS(async_on_unload=lambda _: None)
+        hass.config_entries.async_forward_entry_setups.side_effect = RuntimeError("platform failed")
+        with self.assertRaisesRegex(RuntimeError, "platform failed"):
+            await bootstrap.async_setup_entry(hass, entry)
+        self.assertNotIn("daybreak_alarm", hass.data)
+        self.assertFalse(hass.panels)
+        self.assertFalse(hass.extra_modules)
+        hass.config_entries.async_unload_platforms.assert_awaited_once()
+        hass.config_entries.async_forward_entry_setups.side_effect = None
+        await bootstrap.async_setup_entry(hass, entry)
+        self.assertEqual(hass.extra_modules, {bootstrap.CARD_URL})
+        await bootstrap.async_unload_entry(hass, entry)
+        self.assertFalse(hass.extra_modules)
 
     async def test_websocket_denies_non_admin(self):
         connection=Connection(False)

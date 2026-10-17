@@ -27,7 +27,7 @@ def validate(root=ROOT, allow_template=False):
         assert 'YOUR_GITHUB_USERNAME' not in json.dumps(manifest), 'Run python tools/configure_repository.py OWNER/REPOSITORY before publishing'
     constants = {n.targets[0].id: ast.literal_eval(n.value) for n in ast.parse((component/'const.py').read_text()).body if isinstance(n, ast.Assign)}
     assert constants['VERSION'] == manifest['version'] == json.loads((root/'package.json').read_text())['version']
-    for name in ('__init__.py', 'config_flow.py', 'frontend/panel.js', 'frontend/card.js', 'frontend/sounds/daybreak.wav', 'frontend/sounds/soft.wav', 'frontend/sounds/pulse.wav', 'translations/en.json'):
+    for name in ('__init__.py', 'config_flow.py', 'entity.py', 'switch.py', 'button.py', 'sensor.py', 'frontend/panel.js', 'frontend/card.js', 'frontend/sounds/daybreak.wav', 'frontend/sounds/soft.wav', 'frontend/sounds/pulse.wav', 'translations/en.json'):
         assert (component/name).is_file(), f'Missing runtime file: {name}'
     assert f'export const FRONTEND_VERSION = "{manifest["version"]}"' in (component/'frontend/panel.js').read_text()
     assert f'./panel.js?v={manifest["version"]}' in (component/'frontend/card.js').read_text()

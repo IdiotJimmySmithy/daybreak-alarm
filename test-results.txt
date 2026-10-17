@@ -1,8 +1,7 @@
-Daybreak Alarms v0.1.2 — local verification, 2026-10-17
-Python 3.12.14 / Node 24.19.0
-Browser and real-HA execution blocked by unavailable downloads; see VALIDATION.md.
+Daybreak Alarms v0.1.3 — local validation, October 17, 2026
+HA/device doubles; physical devices and real HA/Chromium not tested here.
 
-$ python3 -m unittest discover -s tests -v
+Python unittest:
 test_background_repeat_cancelled_on_stop (test_actions.ActionTests.test_background_repeat_cancelled_on_stop) ... ok
 test_cancelled_play_attempt_is_stopped (test_actions.ActionTests.test_cancelled_play_attempt_is_stopped) ... ok
 test_cyclic_group_does_not_recurse_forever (test_actions.ActionTests.test_cyclic_group_does_not_recurse_forever) ... ok
@@ -64,6 +63,17 @@ test_snooze_one_time_alarm_even_after_auto_disable (test_engine.EngineTests.test
 test_stale_notification_does_nothing (test_engine.EngineTests.test_stale_notification_does_nothing) ... ok
 test_test_does_not_change_schedule (test_engine.EngineTests.test_test_does_not_change_schedule) ... ok
 test_timezone_change_recalculates_wall_time (test_engine.EngineTests.test_timezone_change_recalculates_wall_time) ... ok
+test_controls_unavailable_until_startup_ready (test_entities.EntityTests.test_controls_unavailable_until_startup_ready) ... ok
+test_delete_removes_only_deleted_alarms_registry_entries (test_entities.EntityTests.test_delete_removes_only_deleted_alarms_registry_entries) ... ok
+test_disabled_snooze_cannot_be_pressed (test_entities.EntityTests.test_disabled_snooze_cannot_be_pressed) ... ok
+test_duplicate_labels_have_distinct_ids_and_renames_keep_ids (test_entities.EntityTests.test_duplicate_labels_have_distinct_ids_and_renames_keep_ids) ... ok
+test_each_saved_alarm_creates_five_discoverable_entities (test_entities.EntityTests.test_each_saved_alarm_creates_five_discoverable_entities) ... ok
+test_entity_listener_removed_on_platform_unload (test_entities.EntityTests.test_entity_listener_removed_on_platform_unload) ... ok
+test_non_admin_entity_control_denied_admin_and_automation_allowed (test_entities.EntityTests.test_non_admin_entity_control_denied_admin_and_automation_allowed) ... ok
+test_one_time_alarm_auto_disable_does_not_disable_snooze_or_dismiss (test_entities.EntityTests.test_one_time_alarm_auto_disable_does_not_disable_snooze_or_dismiss) ... ok
+test_snooze_dismiss_buttons_and_timestamp_follow_active_alarm (test_entities.EntityTests.test_snooze_dismiss_buttons_and_timestamp_follow_active_alarm) ... ok
+test_switch_controls_persistent_alarm_and_updates_sensor (test_entities.EntityTests.test_switch_controls_persistent_alarm_and_updates_sensor) ... ok
+test_upgrade_loads_existing_alarms_and_reload_keeps_unique_ids (test_entities.EntityTests.test_upgrade_loads_existing_alarms_and_reload_keeps_unique_ids) ... ok
 test_boot_defers_actions_and_disallows_early_edits (test_ha_contract.ContractTests.test_boot_defers_actions_and_disallows_early_edits) ... ok
 test_builtin_audio_is_an_absolute_reachable_url (test_ha_contract.ContractTests.test_builtin_audio_is_an_absolute_reachable_url) ... ok
 test_catalog_inherits_device_area_and_lists_only_mobile_notify (test_ha_contract.ContractTests.test_catalog_inherits_device_area_and_lists_only_mobile_notify) ... ok
@@ -71,6 +81,8 @@ test_config_flow_form_and_creation (test_ha_contract.ContractTests.test_config_f
 test_corrupt_storage_aborts_setup_without_overwrite (test_ha_contract.ContractTests.test_corrupt_storage_aborts_setup_without_overwrite) ... ok
 test_custom_media_identifier_preserved (test_ha_contract.ContractTests.test_custom_media_identifier_preserved) ... ok
 test_disabled_notification_controls_ignore_button (test_ha_contract.ContractTests.test_disabled_notification_controls_ignore_button) ... ok
+test_failed_platform_setup_cleans_up_and_can_retry (test_ha_contract.ContractTests.test_failed_platform_setup_cleans_up_and_can_retry) ... ok
+test_failed_platform_unload_preserves_scheduler_and_card (test_ha_contract.ContractTests.test_failed_platform_unload_preserves_scheduler_and_card) ... ok
 test_media_source_is_resolved (test_ha_contract.ContractTests.test_media_source_is_resolved) ... ok
 test_native_service_denies_non_admin (test_ha_contract.ContractTests.test_native_service_denies_non_admin) ... ok
 test_notification_action_token_forwarded (test_ha_contract.ContractTests.test_notification_action_token_forwarded) ... ok
@@ -106,6 +118,9 @@ test_non_admin_cannot_send_test_notification (test_notifications.NotificationApi
 test_old_dashboard_popup_cannot_dismiss_new_ring (test_notifications.NotificationApiTests.test_old_dashboard_popup_cannot_dismiss_new_ring) ... ok
 test_startup_blocks_phone_test (test_notifications.NotificationApiTests.test_startup_blocks_phone_test) ... ok
 test_unsaved_phone_test_never_changes_alarm_storage (test_notifications.NotificationApiTests.test_unsaved_phone_test_never_changes_alarm_storage) ... ok
+test_full_alarm_test_accepts_full_uuid_tag_and_keeps_notice (test_notifications.NotificationTagTests.test_full_alarm_test_accepts_full_uuid_tag_and_keeps_notice) ... ok
+test_scheduled_alarm_accepts_full_uuid_tag_and_clears_same_tag (test_notifications.NotificationTagTests.test_scheduled_alarm_accepts_full_uuid_tag_and_clears_same_tag) ... ok
+test_snooze_uses_new_tag_without_changing_button_routing (test_notifications.NotificationTagTests.test_snooze_uses_new_tag_without_changing_button_routing) ... ok
 test_cancel_joins_notification_lane_before_cleanup (test_notifications.NotificationTests.test_cancel_joins_notification_lane_before_cleanup) ... ok
 test_full_test_notification_survives_audio_cleanup (test_notifications.NotificationTests.test_full_test_notification_survives_audio_cleanup) ... ok
 test_phone_only_reports_each_target_and_no_delivery_claim (test_notifications.NotificationTests.test_phone_only_reports_each_target_and_no_delivery_claim) ... ok
@@ -124,65 +139,63 @@ test_configuring_repository_produces_valid_metadata (test_repository.RepositoryT
 test_template_identity_cannot_pass_publish_validation (test_repository.RepositoryTests.test_template_identity_cannot_pass_publish_validation) ... ok
 
 ----------------------------------------------------------------------
-Ran 119 tests in 0.207s
+Ran 135 tests in 0.277s
 
 OK
 Configured example-user/daybreak-alarm; maintainer @example-user. No files were uploaded.
 Repository validation passed
 
-Exit: 0
-
-$ node --test tests/frontend.test.mjs
-✔ HTML metacharacters are escaped (1.39635ms)
-✔ one-time schedule label (0.211137ms)
-✔ weekday shortcut (0.120201ms)
-✔ weekend shortcut (0.328724ms)
-✔ every-day shortcut (0.959603ms)
-✔ individual repeat days (0.12685ms)
-✔ 12-hour midnight (0.8782ms)
-✔ 12-hour noon (0.138939ms)
-✔ 24-hour display (0.175845ms)
-✔ disabled alarms are excluded from next alarm (0.531158ms)
-✔ disabled one-time alarm can still be snoozed (0.241322ms)
-✔ earliest due alarm selected (0.218619ms)
-✔ countdown never negative (0.217087ms)
-✔ countdown handles day and minute (0.071467ms)
-✔ empty state has a create action (0.63903ms)
-✔ alarm labels cannot inject markup (14.303867ms)
-✔ runtime errors cannot inject markup (0.637769ms)
-✔ ringing alarm offers dismiss and optional snooze (0.338909ms)
-✔ skip button respects feature switch (0.289405ms)
-✔ offline state disables enable switch (0.40625ms)
-✔ editor includes every weekday (0.473933ms)
-✔ editor has independent toggles for every optional feature (0.250527ms)
-✔ disabled output fields are disabled (0.382465ms)
-✔ unsupported speakers remain visible with a reason (0.195484ms)
-✔ missing targets remain selectable for removal (0.205929ms)
-✔ script and light behavior is described (0.216716ms)
-✔ form updates one nested field (0.158989ms)
-✔ form cannot write prototype paths (0.308674ms)
-✔ form rejects unknown fields (0.123276ms)
-✔ panel uses a local bundle without remote imports (0.637338ms)
-✔ background refresh cannot race a save or action (1.35073ms)
-✔ test controls are confined to settings (0.845431ms)
-✔ visible Edit controls exist for idle and ringing alarms (1.228487ms)
-✔ phone-only test explains submission versus delivery (0.177827ms)
-✔ card configuration rejects invalid switch values and filters (0.225879ms)
-✔ card filter limits visible alarms (0.173451ms)
-✔ card active alarms sort before scheduled ones (0.11976ms)
-✔ card optional editing and add controls can be hidden (0.226651ms)
-✔ card labels and titles cannot inject HTML (0.2328ms)
-✔ card disconnected controls cannot send actions (0.293512ms)
-✔ popup respects snooze switch and escapes labels (0.174512ms)
-✔ dashboard popup forwards its ring token (0.244528ms)
-✔ phone test sends only notification draft and keeps unsaved edits (0.347052ms)
-✔ phone service errors are visible and HTML-safe (0.314593ms)
-✔ save and test always uses the newly saved alarm ID (0.449756ms)
-✔ change events during a fetch queue a fresh snapshot (12.804232ms)
-✔ a response from a disconnected card is ignored (0.207372ms)
-✔ popup-off, card preview, hidden view and ID filters suppress the dialog (0.585961ms)
-✔ multiple dashboard cards share one popup and release it on stop (0.27904ms)
-✔ hiding a popup keeps ringing and a new ring may pop up again (0.251108ms)
+Node tests:
+✔ HTML metacharacters are escaped (2.32092ms)
+✔ one-time schedule label (0.310957ms)
+✔ weekday shortcut (0.24594ms)
+✔ weekend shortcut (0.219039ms)
+✔ every-day shortcut (0.334333ms)
+✔ individual repeat days (0.237757ms)
+✔ 12-hour midnight (1.30332ms)
+✔ 12-hour noon (0.251668ms)
+✔ 24-hour display (0.227773ms)
+✔ disabled alarms are excluded from next alarm (0.826573ms)
+✔ disabled one-time alarm can still be snoozed (0.197107ms)
+✔ earliest due alarm selected (0.27261ms)
+✔ countdown never negative (0.348644ms)
+✔ countdown handles day and minute (0.144767ms)
+✔ empty state has a create action (0.436967ms)
+✔ alarm labels cannot inject markup (14.936177ms)
+✔ runtime errors cannot inject markup (0.73857ms)
+✔ ringing alarm offers dismiss and optional snooze (0.342995ms)
+✔ skip button respects feature switch (0.291228ms)
+✔ offline state disables enable switch (0.482456ms)
+✔ editor includes every weekday (0.641014ms)
+✔ editor has independent toggles for every optional feature (0.469916ms)
+✔ disabled output fields are disabled (0.175945ms)
+✔ unsupported speakers remain visible with a reason (0.230216ms)
+✔ missing targets remain selectable for removal (0.298078ms)
+✔ script and light behavior is described (0.155824ms)
+✔ form updates one nested field (0.218588ms)
+✔ form cannot write prototype paths (0.27947ms)
+✔ form rejects unknown fields (0.135143ms)
+✔ panel uses a local bundle without remote imports (0.791149ms)
+✔ background refresh cannot race a save or action (0.321283ms)
+✔ test controls are confined to settings (1.965315ms)
+✔ visible Edit controls exist for idle and ringing alarms (1.775589ms)
+✔ phone-only test explains submission versus delivery (0.310026ms)
+✔ card configuration rejects invalid switch values and filters (0.247873ms)
+✔ card filter limits visible alarms (0.213912ms)
+✔ card active alarms sort before scheduled ones (0.134131ms)
+✔ card optional editing and add controls can be hidden (0.326801ms)
+✔ card labels and titles cannot inject HTML (0.324728ms)
+✔ card disconnected controls cannot send actions (0.362354ms)
+✔ popup respects snooze switch and escapes labels (0.179961ms)
+✔ dashboard popup forwards its ring token (0.273812ms)
+✔ phone test sends only notification draft and keeps unsaved edits (0.441804ms)
+✔ phone service errors are visible and HTML-safe (0.443226ms)
+✔ save and test always uses the newly saved alarm ID (0.450758ms)
+✔ change events during a fetch queue a fresh snapshot (14.330657ms)
+✔ a response from a disconnected card is ignored (0.475234ms)
+✔ popup-off, card preview, hidden view and ID filters suppress the dialog (0.623718ms)
+✔ multiple dashboard cards share one popup and release it on stop (0.237397ms)
+✔ hiding a popup keeps ringing and a new ring may pop up again (0.166861ms)
 ℹ tests 50
 ℹ suites 0
 ℹ pass 50
@@ -190,27 +203,8 @@ $ node --test tests/frontend.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 145.09918
+ℹ duration_ms 182.804064
 
-Exit: 0
-
-$ python3 -m compileall -q custom_components tests/ha_runtime_smoke.py
-
-Exit: 0
-
-$ node --check custom_components/daybreak_alarm/frontend/panel.js
-
-Exit: 0
-
-$ node --check custom_components/daybreak_alarm/frontend/card.js
-
-Exit: 0
-
-$ node --check tests/browser-smoke.mjs
-
-Exit: 0
-
-$ python3 tools/validate_repository.py --allow-template
-Repository validation passed (template identity allowed; configure before publishing)
-
-Exit: 0
+Syntax: Python compileall; browser smoke JavaScript — PASS
+Repository validation --allow-template — PASS
+The build also checks JS syntax, translations, audio properties, and ZIP integrity.

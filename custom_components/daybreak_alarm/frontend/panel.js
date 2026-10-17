@@ -1,6 +1,6 @@
 /* Daybreak Alarms — a self-contained Home Assistant custom panel. No CDN. */
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-export const FRONTEND_VERSION = "0.1.2";
+export const FRONTEND_VERSION = "0.1.3";
 export const escapeHTML = (value = "") => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
 const e = escapeHTML;
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -353,7 +353,7 @@ export class DaybreakAlarmPanel extends (globalThis.HTMLElement || class {}) {
 if(globalThis.customElements && !customElements.get("daybreak-alarm-panel"))customElements.define("daybreak-alarm-panel",DaybreakAlarmPanel);
 
 export function dashboardSetupTemplate() {
-  return `<dialog aria-labelledby="setup-title"><div class="modal-head"><h2 id="setup-title">Add a dashboard card</h2><button type="button" class="text-button accent" data-action="close">Done</button></div><div class="setup-body"><p>1. Enable Advanced mode in your Home Assistant profile, then open Settings → Dashboards → menu → Resources. Add this URL as a <strong>JavaScript module</strong>:</p><code>/daybreak_alarm/static/card.js?v=${FRONTEND_VERSION}</code><p>2. Reload your browser. Edit a dashboard → Add card → search for <strong>Daybreak Alarms</strong>. Or use a Manual card:</p><pre>type: custom:daybreak-alarm-card\nshow_popup: true</pre><p>Create and edit alarms, snooze, and dismiss directly on the card. Turn off “Ringing popup” in the card editor if desired. Popups work while this dashboard is open and visible. Your backend alarms run with the dashboard closed.</p><p>The card uses the same administrator access as the Alarms page. HACS installs its files with this integration.</p></div></dialog>`;
+  return `<dialog aria-labelledby="setup-title"><div class="modal-head"><h2 id="setup-title">Add a dashboard card</h2><button type="button" class="text-button accent" data-action="close">Done</button></div><div class="setup-body"><p>The card loads automatically with Daybreak Alarms. After updating, restart Home Assistant and fully reload your browser or companion app.</p><p>Edit a dashboard → Add card → search for <strong>Daybreak Alarms</strong>. Or use a Manual card:</p><pre>type: custom:daybreak-alarm-card\nshow_popup: true</pre><p>Create and edit alarms, snooze, and dismiss directly on the card. Turn off “Ringing popup” in the card editor if desired. Popups work while this dashboard is open and visible. Your backend alarms run with the dashboard closed.</p><p>Native controls: Settings → Devices &amp; services → Daybreak Alarms → entities. Each saved alarm has an enabled switch, Snooze and Dismiss buttons, and status and next-alarm sensors. Snooze is available while ringing; Dismiss is available while ringing or snoozed.</p><p>If you previously added a Daybreak resource under Settings → Dashboards → Resources, remove that old entry to avoid loading an older card. No manual resource is needed in this version.</p><p>The card uses the same administrator access as the Alarms page. HACS installs its files with this integration.</p></div></dialog>`;
 }
 
 export function cardConfig(config={}) {

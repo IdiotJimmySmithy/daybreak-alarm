@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.3 — 2026-10-17
+
+- Fix phone-notification tags in full tests, scheduled alarms, and snoozed rings:
+  41 bytes instead of 74, below APNs' 64-byte collapse-ID limit. Preserve unique
+  per-ring routing, notification actions, and matching clear-notification tags.
+- Add five native entities per saved alarm: enabled switch, Snooze/Dismiss
+  buttons, status sensor, and next-alarm timestamp sensor. Existing alarms gain
+  entities on upgrade, names follow labels, and registry identities survive reloads.
+- Add live entity updates and cleanup when an alarm is deleted. Preserve
+  administrator-only controls while allowing system automations.
+- Load the dashboard card automatically through Home Assistant's frontend module
+  registration. Add/remove registration during integration setup/unload and show
+  current setup instructions. Remove old manually registered card resources.
+- Pass 135 Python and 50 JavaScript tests (185 total). Reproduce the previous tag
+  failure with actual engine-generated UUIDs before fixing it. Expand the real-HA
+  CI smoke script for native entities and card registration. Physical phone
+  delivery, real HA, and Chromium are not verified in this environment.
+
 ## 0.1.2 — 2026-10-17
 
 - Add a bundled dashboard card with the shared alarm editor, enable/disable,

@@ -1,87 +1,95 @@
-# Validation report · v0.1.2
+# Validation report · v0.1.3
 
-Date: October 17, 2026. Starting point: the supplied `daybreak-alarm-v0.1.1.zip`.
-The supplied GitHub/HACS layout and previous fixes were preserved.
+Date: October 17, 2026. Starting point: the previously delivered v0.1.2 source.
+GitHub/HACS structure and the stored alarm schema are retained.
 
-## Results for this update
+## Results
 
-**119 Python tests and 50 JavaScript tests pass (169 total).** These are local
-software checks, not a claim that a physical phone received a notification or
-that this update has passed Home Assistant, browser, or HACS installation testing.
+**135 Python tests and 50 JavaScript tests pass (185 total).** These are local
+software checks using explicit Home Assistant/device doubles. They do not confirm
+physical phone delivery or installation into a real Home Assistant instance.
 
-| Check | Status | Boundary |
+| Check | Result | Boundary |
 | --- | --- | --- |
-| Supplied baseline | 106 Python + 31 JavaScript passed | Reproduced before edits |
-| Updated Python suite | 119 passed | Real Python state machine and output tasks; explicit HA/device doubles |
-| Updated JavaScript suite | 50 passed | Real templates/configuration/controller logic; small DOM doubles for popup policy |
-| Python compilation | Passed | Component and runtime smoke-test syntax |
-| JavaScript syntax | Passed | Panel, card entry point, browser script, and generated preview |
-| Repository validation | Passed with template identity allowed | Layout, assets, versions, HACS metadata; publishing still requires your real GitHub identity |
-| Repository setup helper | Passed on a temporary copy | Real identity substitution and strict validator |
-| Release build | Passed | JSON/translations, AST, audio properties, generated preview, ZIP integrity |
-| Real Chromium smoke | Not run | Browser binary unavailable; download denied HTTP 403 by this environment |
-| Real Home Assistant smoke | Not run | HA is not installed; package lookup/install prerequisites unavailable here |
-| Hosted GitHub checks | Not run | No connected repository/release was modified by this update |
-| Real speaker / phone | Not run | No connection to the user's installation or hardware |
+| New notification regressions before fix | Failed as expected | Real engine UUIDs produced 74-byte tags rejected by a simulated 64-byte APNs limit |
+| Python suite after fix | 135 passed | Real scheduler/output/entity code with HA and device doubles |
+| JavaScript suite | 50 passed | Real frontend logic/templates with small DOM doubles |
+| Python and JavaScript syntax | Passed | Component, scripts, and generated preview |
+| Repository validation | Passed with template identity allowed | HACS layout, versions, assets, metadata |
+| Repository setup helper | Passed on a temporary copy | Real identity substitution and strict validation |
+| Release build | Passed | JSON/translations, Python AST, audio properties, preview, ZIP integrity |
+| Real Home Assistant smoke | Not run | HA and its required environment are unavailable here |
+| Chromium smoke | Not run | Browser binary unavailable; prior download denied HTTP 403 |
+| Hosted GitHub/HACS checks | Not run | This update did not publish to a connected repository |
+| Physical phone/speakers | Not run | No access to the user's installation or hardware |
 
-Runtime for executed checks: Python 3.12.14 and Node 24.19.0. The separate real-HA
-job retains the supplied Python 3.14 / Home Assistant 2026.10.2 requirements.
-The v0.1.1 archive contained a prior report of browser and HA runtime success;
-that report is not carried forward as evidence for the changed v0.1.2 code.
+Executed with Python 3.12.14 and Node 24.19.0. The GitHub workflow retains the
+separate Python 3.14 / Home Assistant 2026.10.2 checks. Dependency restrictions
+established earlier in this session prevent running real HA and browser checks
+locally. Prior-version reports are not evidence for the changed code.
 
-## Verified regressions and changes
+## Notification regression
 
-- Notification dispatch proceeds while media resolution is blocked. A blocked
-  notification call also does not delay audio. Cancellation joins both tasks
-  before cleanup, avoiding sends or playback continuing after cleanup.
-- A normal alarm clears its own notification on stop; a ten-second full test
-  leaves its test notification visible. Each ring keeps a unique notification tag.
-- Phone-only tests call only the selected notification actions and report each
-  success/failure separately. Their response explicitly does not confirm delivery.
-- Disabled notifications, empty/non-phone targets, invalid prompt-delivery flags,
-  non-admin users, and requests during HA startup are rejected at the API boundary.
-- A stored v0.1.1 alarm receives the new notification option's default without
-  changing its existing schedule. Existing scheduling/DST/restart tests still pass.
-- A stale dashboard popup's token cannot dismiss a later ring.
-- List/card templates expose Edit and omit test buttons outside settings.
-  Save & test uses the returned saved alarm ID even if a refresh replaces the
-  displayed snapshot. Phone-only tests preserve unsaved edits.
-- Card filtering, disabled optional controls, label escaping, and disconnected
-  controls are tested. Popup policy tests cover off, preview, hidden/background
-  views, alarm-ID filters, duplicate cards, hide-without-dismiss, and a later ring.
-- A changed event arriving during a fetch queues a fresh fetch. A detached
-  component ignores an outstanding response.
+The phone-only test used a 52-byte tag. Full tests and scheduled alarms combined
+two 32-character UUIDs and a prefix into a 74-byte tag. The fix uses the unique
+ring token with the prefix, producing 41 bytes. Apple's APNs documentation limits
+`apns-collapse-id` to 64 bytes:
+https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html
 
-The undelivered phone alert reported by the user has **no confirmed root cause**
-in the supplied files: no phone logs or HA runtime access were included. The
-timing/short-test-visibility issues are fixed, and diagnostics now distinguish
-submission errors from delivery problems. Companion permissions, connectivity,
-Focus/Do Not Disturb, or a selected device mismatch still need an on-device check.
+Three tests failed before the patch and pass after it. They use actual
+engine-generated alarm IDs and ring tokens with a gateway rejecting oversized
+tags. Coverage includes scheduled alarms, full tests, snoozed rings, unchanged
+notification action routing, unique later tags, and matching cleanup. Normal
+alarms clear their notification on stop; full tests leave it visible.
 
-## Browser and real-HA checks prepared for CI
+This confirms an oversized-tag bug and its correction. It does not establish
+that this was the only reason for the user's missing physical-phone delivery.
 
-`tests/browser-smoke.mjs` covers desktop/mobile editor workflows, visible Edit,
-phone-test feedback, resource setup instructions, dashboard Save & test,
-popup Snooze/Dismiss/Hide, popup-off/filtering, multiple-card coordination,
-visual card-editor events, and theme. It uses the generated preview with a
-simulated backend. It has been syntax-checked but not executed here.
+## Entity and card checks
 
-`tests/ha_runtime_smoke.py` covers real configuration, authenticated HTTP and
-WebSocket schemas, static delivery of the card/panel/audio, phone-test dispatch,
-non-admin rejection, schedules, old action tokens, storage, and unload/reload.
-Its device services are recorders, so even a successful CI run does not establish
-phone delivery or physical audio behavior. It has been compile-checked but not
-executed here. `--simulate-network` remains available for restricted test hosts.
+- Existing/new alarms expose an enabled switch, Snooze and Dismiss buttons,
+  status sensor, and next-alarm timestamp sensor.
+- Duplicate labels have distinct IDs. Renaming preserves identity. Reloads retain
+  stored configuration, next occurrence, and entity IDs. Deletion removes only
+  the deleted alarm's registry entries, preserving unrelated integrations.
+- Controls update saved state and sensors. Snooze respects its optional switch.
+  One-time alarms retain Snooze/Dismiss after their enabled switch turns off.
+  The next-alarm sensor reports the earlier of a schedule and snooze deadline.
+- Admin controls and system automations work in contract tests. Non-admin entity
+  actions and actions before readiness are rejected. Native state visibility
+  follows normal Home Assistant permissions.
+- Entity listeners are removed on unload. Failed platform unload preserves the
+  scheduler and card. Setup failures clean up and allow a later retry.
+- Setup registers the versioned card module with Home Assistant's frontend;
+  unload removes it. Reload registers one current URL without duplicate static
+  paths. Instructions now describe automatic loading and native entities.
+- Existing scheduling, DST, restart, output isolation, optional-feature,
+  authorization, card, and popup tests still pass.
 
-The GitHub workflow also runs hassfest and HACS validation. These must run against
-the configured repository before publishing the update.
+The frontend helper and awaited platform setup were checked against official
+Home Assistant sources:
+https://github.com/home-assistant/core/blob/dev/homeassistant/components/frontend/__init__.py
+https://developers.home-assistant.io/blog/2024/06/12/async_forward_entry_setups/
+
+## CI checks prepared, not executed locally
+
+`tests/ha_runtime_smoke.py` now checks real entity registration/state, native
+switch/button services, non-admin denial, deletion cleanup, reload identity, and
+frontend module registration/removal. Its recording phone service rejects tags
+over 64 bytes. Existing real HTTP/WebSocket/storage/scheduling checks remain.
+The services are test recorders, not physical hardware.
+
+`tests/browser-smoke.mjs` checks the new setup instructions alongside existing
+desktop/mobile editing, optional controls, card tests, popup actions, and visual
+editor flows. Its preview uses a simulated backend. Both smoke scripts are
+syntax-checked here; actual execution remains a release gate in GitHub.
 
 ## Reproduce
 
 ```sh
 python -m unittest discover -s tests -v
 node --test tests/frontend.test.mjs
-python -m compileall -q custom_components
+python -m compileall -q custom_components tests tools
 node --check custom_components/daybreak_alarm/frontend/panel.js
 node --check custom_components/daybreak_alarm/frontend/card.js
 node --check tests/browser-smoke.mjs
@@ -89,36 +97,23 @@ python tools/validate_repository.py --allow-template
 python tools/build_release.py --output dist
 ```
 
-Configure your real repository identity and omit `--allow-template` before
-publishing. The template identity is intentionally rejected by strict validation.
-
-With browser dependencies available:
-
-```sh
-npm install --no-save playwright
-npx playwright install chromium
-node tests/browser-smoke.mjs
-```
-
-In a separate Python 3.14 environment:
-
-```sh
-pip install -r requirements-ha-test.txt
-python tests/ha_runtime_smoke.py
-```
+Configure the repository identity and omit `--allow-template` before publishing.
+Strict validation intentionally rejects `YOUR_GITHUB_USERNAME`. With browser
+dependencies available, run `npm install --no-save playwright`,
+`npx playwright install chromium`, and `node tests/browser-smoke.mjs`.
+In a separate Python 3.14 environment, install `requirements-ha-test.txt` and run
+`python tests/ha_runtime_smoke.py`.
 
 ## Checks on your installation
 
-1. Publish source with your existing repository identity, run GitHub checks,
-   publish `v0.1.2`, update via HACS, and restart HA. Keep the integration entry.
-2. Confirm existing alarms/schedules remain. Refresh the browser/app frontend.
-3. Register the bundled card resource and add the card. Verify Edit, Save,
-   enable/disable, optional switches, and a normal scheduled alarm.
-4. In an alarm's App notifications settings, select the exact phone and send
-   the phone-only test. Check both the per-target result and the actual phone.
-5. Test the whole alarm from settings. Close settings to see the card popup;
-   try Snooze, Dismiss, Hide, and popup-off. Test while the dashboard is closed
-   to confirm backend audio/phone actions still work without a browser.
-
-Administrator-only shared alarms, the existing two-minute missed-alarm policy,
-speaker capability/group restrictions, and existing lights/script behavior remain.
+1. Preserve your real repository identity, upload source, run GitHub checks,
+   and publish `v0.1.3`. Update via HACS and restart HA; keep the integration entry.
+2. Remove any old manually registered Daybreak card resource. Fully reload the
+   browser/app and add **Daybreak Alarms** from the dashboard card picker.
+3. Confirm existing alarms/schedules remain. Open **Settings → Devices & services
+   → Daybreak Alarms → entities** and check the five entities per saved alarm.
+4. Select your phone in an alarm's notification settings. Try the phone-only test,
+   full test, and a scheduled alarm a few minutes ahead with the dashboard closed.
+   Check the actual phone and any errors shown under the alarm.
+5. Exercise native enable/disable, Snooze, and Dismiss. Check the card/sensors
+   update, optional popup behavior, and stable IDs/settings after a reload.

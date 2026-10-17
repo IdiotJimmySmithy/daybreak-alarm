@@ -29,7 +29,8 @@ try{
   await panel.getByText("mobile_app_phone: accepted by Home Assistant",{exact:true}).waitFor();
   await panel.getByRole("button",{name:"Cancel",exact:true}).click();
   await panel.getByRole("button",{name:"Add a dashboard card →",exact:true}).click();
-  await panel.getByText(/\/daybreak_alarm\/static\/card.js\?v=/).waitFor();
+  await panel.getByText(/The card loads automatically with Daybreak Alarms/).waitFor();
+  await panel.getByText(/Native controls: Settings/).waitFor();
   await panel.getByRole("button",{name:"Done",exact:true}).click();
   await page.getByRole("button",{name:"Add alarm"}).click();
   await page.getByLabel("Alarm time",{exact:true}).fill("08:15");

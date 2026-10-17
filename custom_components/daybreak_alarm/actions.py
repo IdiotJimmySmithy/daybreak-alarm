@@ -85,7 +85,9 @@ class ActionRunner:
         token = record["runtime"]["token"]
         session = self.sessions[token] = {
             "speakers": {}, "claims": set(), "notify": [],
-            "tag": f"daybreak_{record['id']}_{token}",
+            # APNs collapse IDs are limited to 64 UTF-8 bytes. The ring UUID is
+            # already unique: including the alarm UUID made this 74 bytes.
+            "tag": f"daybreak_{token}",
             # A ten-second test must remain visible long enough to check a phone.
             "clear_notifications": not record["runtime"].get("test_run", False),
         }
