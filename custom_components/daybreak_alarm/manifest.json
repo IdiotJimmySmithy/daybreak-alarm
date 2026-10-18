@@ -10,7 +10,7 @@
     "script"
   ],
   "codeowners": [
-    "@YOUR_GITHUB_USERNAME"
+    "@IdiotJimmySmithy"
   ],
   "config_flow": true,
   "dependencies": [
